@@ -152,10 +152,6 @@ export function ApplicationLayout({
                 <QuestionMarkCircleIcon />
                 <SidebarLabel>Support</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="#">
-                <SparklesIcon />
-                <SidebarLabel>Changelog</SidebarLabel>
-              </SidebarItem>
             </SidebarSection>
           </SidebarBody>
 
