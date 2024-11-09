@@ -108,12 +108,12 @@ export function ApplicationLayout({
                 </DropdownItem>
                 <DropdownDivider />
                 <DropdownItem href="#">
-                  <Avatar slot="icon" src="/teams/PermitPilot.svg" />
-                  <DropdownLabel>PermitPilot</DropdownLabel>
+                  <Avatar slot="icon" src="/companies/llamaramaramen.png" />
+                  <DropdownLabel>Llama-Rama-Ramen</DropdownLabel>
                 </DropdownItem>
                 <DropdownItem href="#">
-                  <Avatar slot="icon" initials="BE" className="bg-purple-500 text-white" />
-                  <DropdownLabel>The Events</DropdownLabel>
+                  <Avatar slot="icon" initials="LM" className="bg-purple-500 text-white" />
+                  <DropdownLabel>Llama Mia</DropdownLabel>
                 </DropdownItem>
                 <DropdownDivider />
                 <DropdownItem href="#">
