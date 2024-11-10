@@ -1,15 +1,21 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+interface ChatQuestion {
+  question: string;
+  type: 'text' | 'choice';
+  choices?: string[];
+}
 
 const SimpleChatInterface = () => {
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [input, setInput] = useState('');
-  const [currentStep, setCurrentStep] = useState(0);
-  const [awaitingChoice, setAwaitingChoice] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState<ChatQuestion | null>(null);
+  const [input, setInput] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [awaitingChoice, setAwaitingChoice] = useState<boolean>(false);
 
   // Chat flow configuration
-  const chatFlow = [
+  const chatFlow: ChatQuestion[] = [
     {
       question: "Hi! What kind of AI project did you work on at the hackathon? Can you describe it briefly?",
       type: "text"
@@ -51,13 +57,13 @@ const SimpleChatInterface = () => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!currentQuestion) {
       handleNextQuestion();
     }
   }, [currentQuestion]);
 
-  const handleChoiceSelect = (choice) => {
+  const handleChoiceSelect = (choice: string) => {
     if (awaitingChoice) {
       setAwaitingChoice(false);
       setTimeout(handleNextQuestion, 500);
@@ -92,7 +98,7 @@ const SimpleChatInterface = () => {
           {/* Multiple choice buttons */}
           {currentQuestion.choices ? (
             <div className="space-y-3">
-              {currentQuestion.choices.map((choice, index) => (
+              {currentQuestion.choices.map((choice: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => handleChoiceSelect(choice)}
@@ -107,8 +113,8 @@ const SimpleChatInterface = () => {
               <input
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                onKeyPress={(e: React.KeyboardEvent) => e.key === 'Enter' && handleSend()}
                 placeholder="Answer here..."
                 className="w-full px-4 py-3 text-lg border-b-2 border-gray-200 focus:border-blue-500 focus:outline-none"
               />
