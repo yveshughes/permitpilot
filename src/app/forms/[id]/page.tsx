@@ -1,3 +1,4 @@
+// app/forms/[id]/page.tsx
 import { Badge } from '@/components/badge'
 import { Button } from '@/components/button'
 import { Heading, Subheading } from '@/components/heading'
@@ -6,78 +7,55 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ChevronLeftIcon } from '@heroicons/react/16/solid'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import formsData from '@/app/data/forms.json'
 
+// Define types for the form data structure
 interface FormField {
-  description: string
+  description: string;
+  options?: string[];
+  fields?: string[];
 }
 
 interface FormSection {
-  [key: string]: FormField
+  [key: string]: FormField;
 }
 
-interface FormData {
-  name: string
-  description: string
-  status: 'Active' | 'Inactive'
-  lastUpdated: string
-  sections: {
-    [key: string]: FormSection
-  }
+interface Form {
+  name: string;
+  description: string;
+  status: string;
+  category: string;
+  governingBody: string;
+  due_date?: string;      // Add due_date as an optional string
+  frequency?: string;      // Add frequency as an optional string
+  featured?: boolean;      // Add featured as an optional boolean
+  sections?: {
+    [key: string]: FormSection;
+  };
 }
 
-interface FormsDataType {
-  [key: string]: FormData
-}
-
-const formsData: FormsDataType = {
-  'ss-4': {
-    name: 'SS-4 Form',
-    description: 'Application for Employer Identification Number',
-    status: 'Active',
-    lastUpdated: 'May 15, 2023',
-    sections: {
-      business_identification: {
-        legal_name: { description: 'Legal name of entity' },
-        trade_name: { description: 'Trade name if different' }
-      },
-      contact_information: {
-        address: { description: 'Mailing address' },
-        phone: { description: 'Business phone number' }
-      }
-    }
-  },
-  'fbn': {
-    name: 'Fictitious Business Name Statement',
-    description: 'Register a business name',
-    status: 'Active',
-    lastUpdated: 'June 1, 2023',
-    sections: {
-      business_info: {
-        business_name: { description: 'Fictitious Business Name' },
-        address: { description: 'Business Address' }
-      },
-      owner_info: {
-        owner_name: { description: "Owner's full name" },
-        owner_address: { description: "Owner's address" }
-      }
-    }
-  }
-}
+// Explicitly type the formsData import with flexible indexing
+const formsDataTyped = formsData as unknown as { [key: string]: Form };
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const form = formsData[params.id as keyof typeof formsData]
+  const form = formsDataTyped[params.id];  // Use typed `formsDataTyped` here
+
+  if (!form) {
+    return {
+      title: 'Form Not Found',
+    };
+  }
 
   return {
-    title: form?.name,
-  }
+    title: form.name,
+  };
 }
 
 export default function FormPage({ params }: { params: { id: string } }) {
-  const id = params.id as keyof typeof formsData
-  const form = formsData[id]
+  const form = formsDataTyped[params.id];  // Use typed `formsDataTyped` here
 
   if (!form) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -92,10 +70,17 @@ export default function FormPage({ params }: { params: { id: string } }) {
         <div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <Heading>{form.name}</Heading>
-            <Badge color={form.status === 'Active' ? 'lime' : 'zinc'}>{form.status}</Badge>
+            <Badge 
+              color={form.status.toLowerCase() === 'required' ? 'red' : 
+                     form.status.toLowerCase() === 'optional' ? 'lime' : 'amber'}
+            >
+              {form.status}
+            </Badge>
           </div>
           <div className="mt-2 text-sm/6 text-zinc-500">
-            {form.description} <span aria-hidden="true">·</span> Last updated: {form.lastUpdated}
+            {form.description || form.governingBody} 
+            <span aria-hidden="true"> · </span> 
+            Due: {form.due_date ? new Date(form.due_date).toLocaleDateString() : 'N/A'}
           </div>
         </div>
         <div className="flex gap-4">
@@ -103,31 +88,80 @@ export default function FormPage({ params }: { params: { id: string } }) {
           <Button>Submit</Button>
         </div>
       </div>
-      <form className="mt-8">
-        {Object.entries(form.sections).map(([sectionKey, section]) => (
-          <div key={sectionKey} className="mb-8">
-            <Subheading className="mb-4">{sectionKey.replace('_', ' ').toUpperCase()}</Subheading>
-            <Table className="[--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
-              <TableBody>
-                {Object.entries(section).map(([fieldKey, field]) => (
-                  <TableRow key={fieldKey}>
-                    <TableCell className="font-medium">{field.description}</TableCell>
-                    <TableCell>
-                      <input
-                        type="text"
-                        id={fieldKey}
-                        name={fieldKey}
-                        className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
-                        placeholder={field.description}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ))}
-      </form>
+      
+      {form.sections && (
+        <form className="mt-8">
+          {Object.entries(form.sections).map(([sectionKey, section]: [string, FormSection]) => (
+            <div key={sectionKey} className="mb-8">
+              <Subheading className="mb-4">
+                {sectionKey.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </Subheading>
+              <Table className="[--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+                <TableBody>
+                  {Object.entries(section).map(([fieldKey, field]: [string, FormField]) => {
+                    if (field.options) {
+                      // Render select input for fields with options
+                      return (
+                        <TableRow key={fieldKey}>
+                          <TableCell className="font-medium">{field.description}</TableCell>
+                          <TableCell>
+                            <select
+                              id={fieldKey}
+                              name={fieldKey}
+                              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
+                            >
+                              <option value="">Select {field.description}</option>
+                              {field.options.map((option: string) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    }
+
+                    if (field.fields) {
+                      // Render multiple inputs for field groups
+                      return field.fields.map((subField: string) => (
+                        <TableRow key={`${fieldKey}-${subField}`}>
+                          <TableCell className="font-medium">{subField}</TableCell>
+                          <TableCell>
+                            <input
+                              type="text"
+                              id={`${fieldKey}-${subField}`}
+                              name={`${fieldKey}-${subField}`}
+                              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
+                              placeholder={subField}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    }
+
+                    // Default text input
+                    return (
+                      <TableRow key={fieldKey}>
+                        <TableCell className="font-medium">{field.description}</TableCell>
+                        <TableCell>
+                          <input
+                            type="text"
+                            id={fieldKey}
+                            name={fieldKey}
+                            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
+                            placeholder={field.description}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          ))}
+        </form>
+      )}
     </>
-  )
+  );
 }
