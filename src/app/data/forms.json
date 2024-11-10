@@ -5,6 +5,7 @@
     "frequency": "Once",
     "status": "Required",
     "due_date": "2024-11-07",
+    "featured": true,
     "sections": {
       "business_identification": {
         "legal_name": {
@@ -75,6 +76,7 @@
     "frequency": "Once",
     "status": "Conditional",
     "due_date": "2024-11-07",
+    "featured": true,
     "sections": {
       "business_identification": {
         "trade_name": {
@@ -132,92 +134,103 @@
     "category": "Registration",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-10"
+    "due_date": "2024-11-10",
+    "featured": false
   },
   "seller-permit": {
     "name": "Seller's Permit",
     "category": "Permits",
     "frequency": "Once",
     "status": "Required",
-    "due_date": "2024-11-06"
+    "due_date": "2024-11-06",
+    "featured": false
   },
   "health-permit": {
     "name": "Health Permit",
     "category": "Health",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-03"
+    "due_date": "2024-11-03",
+    "featured": false
   },
   "food-safety-certification": {
     "name": "Food Safety Manager Certification",
     "category": "Health",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-03"
+    "due_date": "2024-11-03",
+    "featured": false
   },
   "building-permit": {
     "name": "Building Permit",
     "category": "Permits",
     "frequency": "Once",
     "status": "Conditional",
-    "due_date": "2024-11-09"
+    "due_date": "2024-11-09",
+    "featured": false
   },
   "workers-compensation": {
     "name": "Workers' Compensation Insurance",
     "category": "Insurance",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-02"
+    "due_date": "2024-11-02",
+    "featured": false
   },
   "fire-department-permit": {
     "name": "Fire Department Permit",
     "category": "Safety",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-06"
+    "due_date": "2024-11-06",
+    "featured": false
   },
   "liquor-license": {
     "name": "Liquor License",
     "category": "Permits",
     "frequency": "Miscellaneous",
     "status": "Conditional",
-    "due_date": "2024-11-09"
+    "due_date": "2024-11-09",
+    "featured": false
   },
   "property-taxes": {
     "name": "Property Taxes",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-08"
+    "due_date": "2024-11-08",
+    "featured": false
   },
   "federal-income-tax": {
     "name": "Federal Income Tax & FUTA",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-05"
+    "due_date": "2024-11-05",
+    "featured": false
   },
   "california-income-tax": {
     "name": "California Income Tax & UI Tax",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-05"
+    "due_date": "2024-11-05",
+    "featured": false
   },
   "gross-receipts-tax": {
     "name": "Gross Receipts Tax",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-06"
+    "due_date": "2024-11-06",
+    "featured": false
   },
   "health-care-security": {
     "name": "Health Care Security Ordinance",
     "category": "Health",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-05"
+    "due_date": "2024-11-05",
+    "featured": false
   }
 }
-
-

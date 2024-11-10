@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Avatar } from '@/components/avatar'
 import {
   Dropdown,
@@ -22,7 +23,6 @@ import {
   SidebarSpacer,
 } from '@/components/sidebar'
 import { SidebarLayout } from '@/components/sidebar-layout'
-import { getEvents } from '@/data'
 import {
   ArrowRightStartOnRectangleIcon,
   BuildingStorefrontIcon,
@@ -36,12 +36,16 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/16/solid'
 import {
-  Cog6ToothIcon,
-  HomeIcon,
   QuestionMarkCircleIcon,
   SparklesIcon,
 } from '@heroicons/react/20/solid'
 import { usePathname } from 'next/navigation'
+
+interface FeaturedForm {
+  id: string
+  name: string
+  featured: boolean
+}
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
   return (
@@ -69,13 +73,36 @@ function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' })
 }
 
 export function ApplicationLayout({
-  events,
   children,
 }: {
-  events: Awaited<ReturnType<typeof getEvents>>
   children: React.ReactNode
 }) {
-  let pathname = usePathname()
+  const pathname = usePathname()
+  const [featuredForms, setFeaturedForms] = useState<FeaturedForm[]>([])
+
+  useEffect(() => {
+    const fetchFeaturedForms = async () => {
+      try {
+        const response = await fetch('/api/forms')
+        const data = await response.json()
+        
+        // Convert the object to an array and filter featured forms
+        const forms = Object.entries(data)
+          .map(([id, form]: [string, any]) => ({
+            id,
+            name: form.name,
+            featured: form.featured
+          }))
+          .filter(form => form.featured)
+
+        setFeaturedForms(forms)
+      } catch (error) {
+        console.error('Error fetching featured forms:', error)
+      }
+    }
+
+    fetchFeaturedForms()
+  }, [])
 
   return (
     <SidebarLayout
@@ -138,19 +165,16 @@ export function ApplicationLayout({
                 <BuildingStorefrontIcon />
                 <SidebarLabel>My Business</SidebarLabel>
               </SidebarItem>
-              
             </SidebarSection>
 
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>Recent Forms</SidebarHeading>
-              {events.map((event) => (
-                <SidebarItem key={event.id} href={event.url}>
-                  {event.name}
+              {featuredForms.map((form) => (
+                <SidebarItem key={form.id} href={`/forms/${form.id}`}>
+                  {form.name}
                 </SidebarItem>
               ))}
             </SidebarSection>
-
-            
 
             <SidebarSpacer />
 
