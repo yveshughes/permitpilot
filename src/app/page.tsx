@@ -69,17 +69,10 @@ export default function Home() {
 
   return (
     <>
-      <Heading>Good afternoon, Erica</Heading>
+      <Heading>Good afternoon, Moe</Heading>
 
       <div className="mt-8 flex items-end justify-between">
         <Subheading>Overview</Subheading>
-        <div>
-          <Select name="period">
-            <option value="current_quarter">Current Quarter</option>
-            <option value="next_quarter">Next Quarter</option>
-            <option value="current_year">Current Year</option>
-          </Select>
-        </div>
       </div>
 
       <div className="mt-4 grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
