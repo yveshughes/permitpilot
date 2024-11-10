@@ -7,6 +7,7 @@ export interface Form {
   status: 'required' | 'optional' | 'conditional'
   category: 'registration' | 'permits' | 'insurance' | 'tax' | 'health' | 'safety'
   jurisdiction: 'federal' | 'state' | 'local'
+  frequency: 'Once' | 'Annual' | 'Quarterly' | 'Miscellaneous'
 }
 
 export async function getForms() {
@@ -19,7 +20,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/business-registration",
       status: "required",
       category: "registration",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     },
     {
       id: 1002,
@@ -29,7 +31,8 @@ export async function getForms() {
       resourceUrl: "https://www.irs.gov/ein",
       status: "required",
       category: "tax",
-      jurisdiction: "federal"
+      jurisdiction: "federal",
+      frequency: "Once"
     },
     {
       id: 1003,
@@ -39,7 +42,8 @@ export async function getForms() {
       resourceUrl: "https://www.cdtfa.ca.gov/services/#Register-Renewals",
       status: "required",
       category: "permits",
-      jurisdiction: "state"
+      jurisdiction: "state",
+      frequency: "Once"
     },
     {
       id: 1004,
@@ -49,7 +53,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/fictitious-business-name",
       status: "conditional",
       category: "registration",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Once"
     },
     {
       id: 1005,
@@ -59,7 +64,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/health-permits",
       status: "conditional",
       category: "health",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     },
     {
       id: 1006,
@@ -69,7 +75,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/food-safety-certification",
       status: "conditional",
       category: "health",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     },
     {
       id: 1007,
@@ -79,7 +86,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/building-permits",
       status: "conditional",
       category: "permits",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Once"
     },
     {
       id: 1008,
@@ -89,7 +97,8 @@ export async function getForms() {
       resourceUrl: "https://www.dir.ca.gov/dwc/",
       status: "required",
       category: "insurance",
-      jurisdiction: "state"
+      jurisdiction: "state",
+      frequency: "Annual"
     },
     {
       id: 1009,
@@ -99,7 +108,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/fire-permits",
       status: "conditional",
       category: "safety",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     },
     {
       id: 1010,
@@ -109,7 +119,8 @@ export async function getForms() {
       resourceUrl: "https://www.abc.ca.gov/licensing/",
       status: "conditional",
       category: "permits",
-      jurisdiction: "state"
+      jurisdiction: "state",
+      frequency: "Miscellaneous"
     },
     {
       id: 1011,
@@ -119,7 +130,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/property-tax",
       status: "conditional",
       category: "tax",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     },
     {
       id: 1012,
@@ -129,7 +141,8 @@ export async function getForms() {
       resourceUrl: "https://www.irs.gov/businesses",
       status: "required",
       category: "tax",
-      jurisdiction: "federal"
+      jurisdiction: "federal",
+      frequency: "Annual"
     },
     {
       id: 1013,
@@ -139,7 +152,8 @@ export async function getForms() {
       resourceUrl: "https://www.ftb.ca.gov/businesses/",
       status: "required",
       category: "tax",
-      jurisdiction: "state"
+      jurisdiction: "state",
+      frequency: "Annual"
     },
     {
       id: 1014,
@@ -149,7 +163,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/gross-receipts-tax",
       status: "required",
       category: "tax",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     },
     {
       id: 1015,
@@ -159,7 +174,8 @@ export async function getForms() {
       resourceUrl: "https://sf.gov/hcso",
       status: "conditional",
       category: "health",
-      jurisdiction: "local"
+      jurisdiction: "local",
+      frequency: "Annual"
     }
   ]
 }
@@ -178,4 +194,8 @@ export async function getFormsByJurisdiction(jurisdiction: string) {
 
 export async function getRequiredForms() {
   return (await getForms()).filter((form) => form.status === 'required')
+}
+
+export async function getFormsByFrequency(frequency: string) {
+  return (await getForms()).filter((form) => form.frequency === frequency)
 }

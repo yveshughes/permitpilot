@@ -1,6 +1,4 @@
-import { Avatar } from '@/components/avatar'
 import { Badge } from '@/components/badge'
-import { Divider } from '@/components/divider'
 import { Heading, Subheading } from '@/components/heading'
 import { Select } from '@/components/select'
 import { Stat } from '@/components/stat'
@@ -22,13 +20,17 @@ const getFormProgress = async () => {
 export default async function Home() {
   const formProgress = await getFormProgress()
   
-  // Calculate stats
-  const totalForms = formProgress.length
-  const completedForms = formProgress.filter(form => form.progress === 100).length
-  const averageProgress = Math.floor(
-    formProgress.reduce((acc, form) => acc + form.progress, 0) / totalForms
-  )
-  const requiredForms = formProgress.filter(form => form.status === 'required').length
+  // Calculate completion stats for each frequency
+  const getCompletionStats = (forms) => {
+    const completed = forms.filter(form => form.progress === 100).length
+    const total = forms.length
+    return { completed, total }
+  }
+
+  const allStats = getCompletionStats(formProgress)
+  const onceStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Once'))
+  const annualStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Annual'))
+  const miscStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Miscellaneous'))
 
   return (
     <>
@@ -38,34 +40,33 @@ export default async function Home() {
         <Subheading>Overview</Subheading>
         <div>
           <Select name="period">
-            <option value="last_week">Last week</option>
-            <option value="last_two">Last two weeks</option>
-            <option value="last_month">Last month</option>
-            <option value="last_quarter">Last quarter</option>
+            <option value="current_quarter">Current Quarter</option>
+            <option value="next_quarter">Next Quarter</option>
+            <option value="current_year">Current Year</option>
           </Select>
         </div>
       </div>
 
       <div className="mt-4 grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
         <Stat 
-          title="Total Forms" 
-          value={totalForms.toString()} 
-          change={`${completedForms} completed`} 
+          title="All Forms" 
+          value={`${allStats.completed} of ${allStats.total}`}
+          change="completed" 
         />
         <Stat 
-          title="Average Progress" 
-          value={`${averageProgress}%`} 
-          change="+5.2%" 
+          title="One-time Forms" 
+          value={`${onceStats.completed} of ${onceStats.total}`}
+          change="completed" 
         />
         <Stat 
-          title="Required Forms" 
-          value={requiredForms.toString()} 
-          change={`${Math.floor(requiredForms / totalForms * 100)}% of total`} 
+          title="Annual Forms" 
+          value={`${annualStats.completed} of ${annualStats.total}`}
+          change="completed" 
         />
         <Stat 
-          title="Days Until Deadline" 
-          value="45" 
-          change="-2 days" 
+          title="Miscellaneous Forms" 
+          value={`${miscStats.completed} of ${miscStats.total}`}
+          change="completed" 
         />
       </div>
 
@@ -76,6 +77,7 @@ export default async function Home() {
           <TableRow>
             <TableHeader>Form Name</TableHeader>
             <TableHeader>Category</TableHeader>
+            <TableHeader>Frequency</TableHeader>
             <TableHeader>Status</TableHeader>
             <TableHeader>Progress</TableHeader>
             <TableHeader>Last Updated</TableHeader>
@@ -87,6 +89,9 @@ export default async function Home() {
               <TableCell className="font-medium">{form.name}</TableCell>
               <TableCell className="text-zinc-500">
                 {form.category.charAt(0).toUpperCase() + form.category.slice(1)}
+              </TableCell>
+              <TableCell className="text-zinc-500">
+                {form.frequency}
               </TableCell>
               <TableCell>
                 <Badge 
