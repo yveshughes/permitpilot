@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Avatar } from '@/components/avatar'
+import { Badge } from '@/components/badge'
 import {
   Dropdown,
   DropdownButton,
@@ -174,6 +175,11 @@ export function ApplicationLayout({
                   {form.name}
                 </SidebarItem>
               ))}
+            </SidebarSection>
+
+            <SidebarSection className="max-lg:hidden">
+              <SidebarHeading>Due Soon</SidebarHeading>
+              
             </SidebarSection>
 
             <SidebarSpacer />
