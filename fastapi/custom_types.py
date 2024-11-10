@@ -7,6 +7,16 @@ class ChatQnA(BaseModel):
   answer: str
 
 class BusinessDetails(BaseModel):
+    business_owner_name: Optional[str] = Field(
+        None,
+        description="Name of business owner",
+        alias="(Business Owner)"
+    )
+    business_owner_phone: Optional[str] = Field(
+        None,
+        description="Phone number of business owner",
+        alias="(Business Owner Phone)"
+    )
     business_name_dba: Optional[str] = Field(
         None, 
         description="Name of Business DBA",
@@ -71,16 +81,6 @@ class BusinessDetails(BaseModel):
         None,
         description="Limited Liability Company status",
         alias="(LLC)"
-    )
-    business_owner: Optional[str] = Field(
-        None,
-        description="Name of business owner",
-        alias="(Business Owner)"
-    )
-    owner_phone: Optional[str] = Field(
-        None,
-        description="Phone number of business owner",
-        alias="(Owner Phone)"
     )
 
 # class VoiceNote(BaseModel):

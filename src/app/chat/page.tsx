@@ -9,13 +9,20 @@ import { Stat } from '@/components/stat'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { getRecentOrders } from '@/data'
 import { useState } from 'react'
-import { ChatQnAData, ChatMessage } from '@/lib/types/chat_qna';
+import { ChatQnAData, ChatMessage, ChatQnADataList } from '@/lib/types/chat_qna';
 
 
 let questions = [
-  "What is your name?",
-  "What is your business about?",
-  "Where are you located?",
+  "What is the business owner name?",
+  "What is the owner's phone number?",
+  "What is your business name?",
+  "What is your business phone number?",
+  "What is your business address with street, suite number (if applicable), city, zip",
+  "What is your business email address?",
+  "What is the seating / bed capacity?",
+  "What is the square footage of the premises?",
+  "What are the operating hours?",
+  "What is the entity type (LP / LLP / LLC / Corporation)?",
 ]
 
 // export default async function Home() {

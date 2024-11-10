@@ -20,6 +20,10 @@ export interface ChatQnAData {
   answer: string;
 }
 
+export interface ChatQnADataList {
+  qnaList: ChatQnAData[]
+}
+
 export interface ChatMessage {
   type: 'user' | 'ai';
   message: string;
