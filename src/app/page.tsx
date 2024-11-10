@@ -1,16 +1,38 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ArrowsUpDownIcon } from '@heroicons/react/24/outline'; // Outline version of the icon
+import { ArrowsUpDownIcon } from '@heroicons/react/24/outline';
 import { Badge } from '@/components/badge';
 import { Heading, Subheading } from '@/components/heading';
-import { Select } from '@/components/select';
 import { Stat } from '@/components/stat';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
-import { getForms } from '@/data-forms';
+import formsDataRaw from '../data/forms.json';  // Import raw JSON
+
+interface FormData {
+  name: string;
+  category: string;
+  frequency: string;
+  status: string;
+  description?: string;
+  lastUpdated?: string;
+  sections?: {
+    [key: string]: {
+      [key: string]: {
+        description: string;
+      };
+    };
+  };
+}
+
+interface FormsData {
+  [id: string]: FormData;
+}
+
+// Cast formsDataRaw to FormsData type
+const formsData: FormsData = formsDataRaw as FormsData;
 
 interface Form {
-  id: number;
+  id: string;
   name: string;
   category: string;
   frequency: string;
@@ -20,9 +42,13 @@ interface Form {
 }
 
 const getFormProgress = async (): Promise<Form[]> => {
-  const forms = await getForms();
-  return forms.map(form => ({
-    ...form,
+  // Map formsData to the Form structure
+  return Object.entries(formsData).map(([id, form]) => ({
+    id,
+    name: form.name,
+    category: form.category,
+    frequency: form.frequency,
+    status: form.status,
     progress: Math.floor(Math.random() * 100),
     lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -76,30 +102,14 @@ export default function Home() {
       </div>
 
       <div className="mt-4 grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat 
-          title="All Forms" 
-          value={`${allStats.completed} of ${allStats.total}`}
-          change="completed" 
-        />
-        <Stat 
-          title="One-time Forms" 
-          value={`${onceStats.completed} of ${onceStats.total}`}
-          change="completed" 
-        />
-        <Stat 
-          title="Annual Forms" 
-          value={`${annualStats.completed} of ${annualStats.total}`}
-          change="completed" 
-        />
-        <Stat 
-          title="Miscellaneous Forms" 
-          value={`${miscStats.completed} of ${miscStats.total}`}
-          change="completed" 
-        />
+        <Stat title="All Forms" value={`${allStats.completed} of ${allStats.total}`} change="completed" />
+        <Stat title="One-time Forms" value={`${onceStats.completed} of ${onceStats.total}`} change="completed" />
+        <Stat title="Annual Forms" value={`${annualStats.completed} of ${annualStats.total}`} change="completed" />
+        <Stat title="Miscellaneous Forms" value={`${miscStats.completed} of ${miscStats.total}`} change="completed" />
       </div>
 
       <Subheading className="mt-14">Form Progress</Subheading>
-      
+
       <Table className="mt-4 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <TableHead>
           <TableRow>
@@ -123,28 +133,19 @@ export default function Home() {
           {sortedForms.map((form) => (
             <TableRow key={form.id} href={`/forms/${form.id}`}>
               <TableCell className="font-medium">{form.name}</TableCell>
-              <TableCell className="text-zinc-500">
-                {form.category.charAt(0).toUpperCase() + form.category.slice(1)}
-              </TableCell>
-              <TableCell className="text-zinc-500">
-                {form.frequency}
-              </TableCell>
+              <TableCell className="text-zinc-500">{form.category.charAt(0).toUpperCase() + form.category.slice(1)}</TableCell>
+              <TableCell className="text-zinc-500">{form.frequency}</TableCell>
               <TableCell>
-                <Badge 
-                  color={form.status === 'required' ? 'red' : 
-                         form.status === 'optional' ? 'lime' : 'amber'}
-                >
+                <Badge color={form.status === 'required' ? 'red' : form.status === 'optional' ? 'lime' : 'amber'}>
                   {form.status.charAt(0).toUpperCase() + form.status.slice(1)}
                 </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-24 rounded-full bg-zinc-100">
-                    <div 
+                    <div
                       className={`h-full rounded-full ${
-                        form.progress === 100 ? 'bg-green-500' :
-                        form.progress >= 70 ? 'bg-lime-500' :
-                        form.progress >= 30 ? 'bg-amber-500' : 'bg-red-500'
+                        form.progress === 100 ? 'bg-green-500' : form.progress >= 70 ? 'bg-lime-500' : form.progress >= 30 ? 'bg-amber-500' : 'bg-red-500'
                       }`}
                       style={{ width: `${form.progress}%` }}
                     />
