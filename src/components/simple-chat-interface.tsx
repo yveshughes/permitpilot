@@ -13,47 +13,60 @@ const SimpleChatInterface = () => {
   const [input, setInput] = useState<string>('');
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [awaitingChoice, setAwaitingChoice] = useState<boolean>(false);
+  const [answers, setAnswers] = useState<Array<{ question: string, answer: string }>>([]);
+  const [isLastQuestion, setIsLastQuestion] = useState(false);
 
   // Chat flow configuration
   const chatFlow: ChatQuestion[] = [
     {
-      question: "Hi! What kind of AI project did you work on at the hackathon? Can you describe it briefly?",
+      question: "Hi! What is the business owner's details - name, phone number? What is the name of your business? Can you describe your business briefly?",
       type: "text"
     },
     {
-      question: "That's interesting! Which programming languages or AI frameworks did you use?",
-      type: "choice",
-      choices: ["Python/TensorFlow", "JavaScript/TensorFlow.js", "Python/PyTorch", "Java/DL4J", "Other"]
-    },
-    {
-      question: "What was the biggest technical challenge you faced?",
+      question: "What is the name of your business? Can you describe your business briefly?",
       type: "text"
     },
     {
-      question: "How many team members worked with you on this project?",
-      type: "choice",
-      choices: ["Solo project", "2-3 members", "4-5 members", "6+ members"]
+      question: "What is your business address with street, suite number (if applicable), city, zip",
+      type: "text"
     },
     {
-      question: "What's next for your project? Are you planning to develop it further?",
+      question: "What is business phone number and business email address?",
       type: "text"
-    }
+    },
+    // {
+    //   question: "What is the seating / bed capacity?",
+    //   type: "text"
+    // },
+    // {
+    //   question: "What is the square footage of the premises?",
+    //   type: "text"
+    // },
+    // {
+    //   question: "What are the operating hours?",
+    //   type: "text"
+    // },
+    // {
+    //   question: "What is the entity type (LP / LLP / LLC / Corporation)?",
+    //   type: "text"
+    // }
   ];
 
   // Calculate progress (0-100)
   const progress = Math.min((currentStep / chatFlow.length) * 100, 100);
 
   const handleNextQuestion = () => {
-    if (currentStep < chatFlow.length) {
+    if (currentStep < chatFlow.length - 1) {
       const nextQuestion = chatFlow[currentStep];
       setCurrentQuestion(nextQuestion);
       setAwaitingChoice(nextQuestion.type === 'choice');
       setCurrentStep(prev => prev + 1);
-    } else {
-      setCurrentQuestion({
-        question: "Thank you for sharing your hackathon experience! Would you like to tell me more about your other projects?",
-        type: "text"
-      });
+      setIsLastQuestion(false);
+    } else if (currentStep === chatFlow.length - 1) {
+      const lastQuestion = chatFlow[currentStep];
+      setCurrentQuestion(lastQuestion);
+      setIsLastQuestion(true);
+      setCurrentStep(prev => prev + 1);
     }
   };
 
@@ -63,59 +76,74 @@ const SimpleChatInterface = () => {
     }
   }, [currentQuestion]);
 
-  const handleChoiceSelect = async (choice: string) => {
-    if (awaitingChoice) {
+  // const handleChoiceSelect = async (choice: string) => {
+  //   if (awaitingChoice) {
 
-      // Send to backend
-      try {
-        const response = await fetch('/api/send-chat-qna', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            question: currentQuestion?.question,
-            answer: input,
-          })
-        })
+  //     // Send to backend
+  //     try {
+  //       const response = await fetch('/api/send-chat-qna', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           question: currentQuestion?.question,
+  //           answer: input,
+  //         })
+  //       })
 
-        console.log("Response:", response.json().then(data => console.log(data)));
+  //       console.log("Response:", response.json().then(data => console.log(data)));
 
 
-      } catch (error) {
-        console.error('Error sending message:', error)
-      }
+  //     } catch (error) {
+  //       console.error('Error sending message:', error)
+  //     }
 
-      setAwaitingChoice(false);
-      setTimeout(handleNextQuestion, 500);
-    }
-  };
+  //     setAwaitingChoice(false);
+  //     setTimeout(handleNextQuestion, 500);
+  //   }
+  // };
 
   const handleSend = async () => {
     if (!input.trim() || awaitingChoice) return;
 
-    // Send to backend
+    console.log("Current answer:", input);
+
+    setAnswers(prev => [...prev, {
+      question: currentQuestion?.question || '',
+      answer: input
+    }]);
+
+    setInput('');
+    setTimeout(handleNextQuestion, 500);
+  };
+
+  const handleFinalSubmit = async () => {
     try {
+      // Send all collected answers
+
+      const combinedText = answers
+        .map(qa => qa.answer)
+        .join('\n\n');
+
+
       const response = await fetch('/api/send-chat-qna', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          question: currentQuestion?.question,
-          answer: input,
+          answers: combinedText
         })
-      })
+      });
 
-      console.log("Response:", response.json().then(data => console.log(data)));
+      console.log("Final submission response:", await response.json());
+      // console.log("Response:", response.json().then(data => console.log(data)));
 
-
+      window.location.href = '/';
     } catch (error) {
-      console.error('Error sending message:', error)
+      console.error('Error sending final submission:', error);
     }
-
-    setInput('');
-    setTimeout(handleNextQuestion, 500);
   };
 
   return (
@@ -137,20 +165,7 @@ const SimpleChatInterface = () => {
             {currentQuestion.question}
           </h2>
 
-          {/* Multiple choice buttons */}
-          {currentQuestion.choices ? (
-            <div className="space-y-3">
-              {currentQuestion.choices.map((choice: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => handleChoiceSelect(choice)}
-                  className="w-full px-4 py-3 text-left text-lg text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                >
-                  {choice}
-                </button>
-              ))}
-            </div>
-          ) : (
+          {currentQuestion.type === 'text' && (
             <div className="relative">
               <input
                 type="text"
@@ -160,14 +175,31 @@ const SimpleChatInterface = () => {
                 placeholder="Answer here..."
                 className="w-full px-4 py-3 text-lg border-b-2 border-gray-200 focus:border-blue-500 focus:outline-none"
               />
-              <button
-                onClick={handleSend}
-                className="absolute right-4 top-1/2 -translate-y-1/2"
-              >
-                <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11l-7-7m0 0l-7 7m7-7v18" />
-                </svg>
-              </button>
+              {/* <button
+              onClick={handleSend}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+            >
+              <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11l-7-7m0 0l-7 7m7-7v18" />
+              </svg>
+            </button> */}
+              {isLastQuestion ? (
+                <button
+                  onClick={handleFinalSubmit}
+                  className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Submit All Answers
+                </button>
+              ) : (
+                <button
+                  onClick={handleSend}
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
+                >
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11l-7-7m0 0l-7 7m7-7v18" />
+                  </svg>
+                </button>
+              )}
             </div>
           )}
         </div>

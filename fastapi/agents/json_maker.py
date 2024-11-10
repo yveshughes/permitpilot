@@ -59,10 +59,13 @@ async def create_business_json(transcript: str):
     result = await extract_business_details(transcript)
     print("After extract_business_details LLM call")
 
-    directory = sys.path[0]
     print(sys.path[0])
+    # directory = sys.path[0]
+    # file_path = os.path.join(directory, 'business_details.json')
+
+    directory = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(current_file_path))), 'src', 'lib')
     file_path = os.path.join(directory, 'business_details.json')
-    
+
     print("Before trying to open JSON file")
     with open(file_path, 'w') as json_file:
         json.dump(result, json_file, indent=4)

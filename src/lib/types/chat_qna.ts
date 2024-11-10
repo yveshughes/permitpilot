@@ -20,6 +20,10 @@ export interface ChatQnAData {
   answer: string;
 }
 
+export interface ChatAnswers {
+  answers: string;
+}
+
 export interface ChatQnADataList {
   qnaList: ChatQnAData[]
 }

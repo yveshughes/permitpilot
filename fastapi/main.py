@@ -38,15 +38,25 @@ app = FastAPI()
 def hello_fast_api():
     return {"message": "Hello from FastAPI"}
 
-@app.get("/api/py/extract-info")
-async def extract_info(question: str, answer: str):
-  logging.info(f"Extract info called with for question: {question}, answer: {answer}")
-  print(f"Extract info called with for question: {question}, answer: {answer}")
+class AnswersRequest(BaseModel):
+    answers: str
+
+# @app.get("/api/py/extract-info")
+@app.post("/api/py/extract-info")
+# async def extract_info(question: str, answer: str):
+# async def extract_info(answers: str):
+async def extract_info(request: AnswersRequest):
+  # logging.info(f"Extract info called with for question: {question}, answer: {answer}")
+  # print(f"Extract info called with for question: {question}, answer: {answer}")
+  
+  logging.info(f"Extract info called with answers: {request.answers}")
+  print(f"Extract info called with answers: {request.answers}")
 
   try:
       async with asyncio.timeout(50): 
         print("Before calling analyze QnA info")
-        extracted_info = await asyncio.create_task(analyze_info(question, answer))
+        # extracted_info = await asyncio.create_task(analyze_info(question, answer))
+        extracted_info = await asyncio.create_task(analyze_info(request.answers))
         logging.info("Extracted info in extract_info:")
         print("Extracted info in extract_info:")
         print(extracted_info)

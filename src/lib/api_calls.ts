@@ -1,7 +1,8 @@
-import { ChatQnAData } from '@/lib/types/chat_qna';
+import { ChatAnswers, ChatQnAData } from '@/lib/types/chat_qna';
 
-export async function sendChatQnA(chatInputQnA: ChatQnAData) {
-  console.log('Chat input QnA data in sendChatQnA:', chatInputQnA);
+// export async function sendChatQnA(chatInputQnA: ChatQnAData) {
+export async function sendChatQnA(chatAnswers: ChatAnswers) {
+  console.log('Chat input answers data in sendChatQnA:', chatAnswers);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
 
@@ -11,7 +12,7 @@ export async function sendChatQnA(chatInputQnA: ChatQnAData) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(chatInputQnA),
+    body: JSON.stringify(chatAnswers),
   });
 
   if (!response.ok) {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ChatQnAData } from '@/lib/types/chat_qna'
+import { ChatQnAData, ChatAnswers } from '@/lib/types/chat_qna'
 
 export async function POST(request: Request) {
   try {
@@ -8,15 +8,20 @@ export async function POST(request: Request) {
     const bodyText = await request.text();
     console.log("Raw request body:", bodyText);
 
-    const { question, answer } = JSON.parse(bodyText);
+    // const { question, answer } = JSON.parse(bodyText);
+    const { answers } = JSON.parse(bodyText);
 
-    const extractInfoResponse = await extractInfoFromQnA({ question: question, answer: answer });
+    // const extractInfoResponse = await extractInfoFromQnA({ question: question, answer: answer });
+    const extractInfoResponse = await extractInfoFromQnA({ answers: answers });
     console.log("Extracted info content response:", extractInfoResponse);
 
     const data = {
-      question: question,
-      answer: answer,
+      answers: answers,
     }
+    // const data = {
+    //   question: question,
+    //   answer: answer,
+    // }
 
     return NextResponse.json({ message: 'Business details fetched successfully', data });
   } catch (error) {
@@ -26,11 +31,11 @@ export async function POST(request: Request) {
 }
 
 
-async function extractInfoFromQnA(chatInputQnA: ChatQnAData) {
+async function extractInfoFromQnA(chatAnswers: ChatAnswers) {
   console.log("Inside extractInfroFromQnA route.ts");
-  console.log("chatInputQnA: ", chatInputQnA);
+  console.log("chatAnswers: ", chatAnswers);
 
-  const { question, answer } = chatInputQnA;
+  const { answers } = chatAnswers;
 
   try {
     // const url = `${API_BASE_URL}/api/py/extract-info?user_id=${user_id}&book_id=${book_id}&page_id=${page_id}`;
@@ -39,7 +44,10 @@ async function extractInfoFromQnA(chatInputQnA: ChatQnAData) {
     //   ? `http://127.0.0.1:8000/api/py/extract-info?question=${question}&answer=${answer}`
     //   : `/api/py/extract-info?question=${question}&answer=${answer}`;
 
-    const url = `http://127.0.0.1:8000/api/py/extract-info?question=${question}&answer=${answer}`
+    // const url = `http://127.0.0.1:8000/api/py/extract-info?question=${question}&answer=${answer}`
+    // const url = `http://127.0.0.1:8000/api/py/extract-info?answers=${answers}`
+
+    const url = `http://127.0.0.1:8000/api/py/extract-info`
 
     console.log("Requesting URL:", url);
 
@@ -53,12 +61,20 @@ async function extractInfoFromQnA(chatInputQnA: ChatQnAData) {
     // const timeoutId = setTimeout(() => controller.abort(), 50000);
 
     const response = await fetch(requestUrl, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      // signal: controller.signal,
+      body: JSON.stringify({ answers: answers })
     });
+
+    // const response = await fetch(requestUrl, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   // signal: controller.signal,
+    // });
 
     // clearTimeout(timeoutId);
 

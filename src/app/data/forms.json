@@ -13,6 +13,7 @@
     "featured": true,
     "generatePDF": true,
     "submitOnline": true,
+    "autoFillForm": true,
     "sections": {
       "business_identification": {
         "legal_name": {
@@ -91,6 +92,7 @@
     "featured": true,
     "generatePDF": true,
     "submitOnline": true,
+    "autoFillForm": true,
     "sections": {
       "business_identification": {
         "trade_name": {

@@ -88,7 +88,7 @@ export function ApplicationLayout({
       try {
         const response = await fetch('/api/forms')
         const data = await response.json()
-        
+
         // Convert the object to an array of forms
         const formsArray = Object.entries(data).map(([id, form]: [string, any]) => ({
           id,
@@ -104,7 +104,7 @@ export function ApplicationLayout({
         // Filter forms due in next 14 days
         const now = new Date()
         const fourteenDaysFromNow = new Date(now.getTime() + (14 * 24 * 60 * 60 * 1000))
-        
+
         const dueSoon = formsArray
           .filter(form => {
             if (!form.due_date) return false
@@ -186,6 +186,10 @@ export function ApplicationLayout({
                 <BuildingStorefrontIcon />
                 <SidebarLabel>My Business</SidebarLabel>
               </SidebarItem>
+              <SidebarItem href="/business_mini" current={pathname.startsWith('/business_mini')}>
+                <BuildingStorefrontIcon />
+                <SidebarLabel>My Business Details</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
             <SidebarSection className="max-lg:hidden">
@@ -200,8 +204,8 @@ export function ApplicationLayout({
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>Due Soon</SidebarHeading>
               {dueSoonForms.map((form) => (
-                <SidebarItem 
-                  key={form.id} 
+                <SidebarItem
+                  key={form.id}
                   href={`/forms/${form.id}`}
                 >
                   <div className="flex flex-col w-full gap-1">

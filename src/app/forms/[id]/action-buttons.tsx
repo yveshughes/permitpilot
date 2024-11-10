@@ -6,9 +6,14 @@ interface ActionButtonsProps {
   formName: string;
   generatePDF: boolean;
   submitOnline: boolean;
+  autoFillForm: boolean;
 }
 
-export default function ActionButtons({ formName, generatePDF, submitOnline }: ActionButtonsProps) {
+export default function ActionButtons({ formName, generatePDF, submitOnline, autoFillForm }: ActionButtonsProps) {
+  const handleAutoFillForm = () => {
+    alert(`Autofilling form for ${formName}.`);
+  };
+
   const handleGeneratePDF = () => {
     alert(`Generating PDF for ${formName}. This feature is not yet implemented.`);
   };
@@ -20,6 +25,11 @@ export default function ActionButtons({ formName, generatePDF, submitOnline }: A
 
   return (
     <div className="flex gap-4">
+      {autoFillForm && (
+        <Button outline onClick={handleAutoFillForm}>
+          Autofill Form
+        </Button>
+      )}
       {generatePDF && (
         <Button outline onClick={handleGeneratePDF}>
           Generate PDF

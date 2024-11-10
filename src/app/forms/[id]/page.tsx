@@ -29,6 +29,7 @@ interface Form {
   featured?: boolean;
   generatePDF: boolean;
   submitOnline: boolean;
+  autoFillForm: boolean;
   sections?: {
     [key: string]: FormSection;
   };
@@ -69,26 +70,27 @@ export default function FormPage({ params }: { params: { id: string } }) {
         <div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <Heading>{form.name}</Heading>
-            <Badge 
-              color={form.status.toLowerCase() === 'required' ? 'red' : 
-                     form.status.toLowerCase() === 'optional' ? 'lime' : 'amber'}
+            <Badge
+              color={form.status.toLowerCase() === 'required' ? 'red' :
+                form.status.toLowerCase() === 'optional' ? 'lime' : 'amber'}
             >
               {form.status}
             </Badge>
           </div>
           <div className="mt-2 text-sm/6 text-zinc-500">
-            {form.description || form.governingBody} 
-            <span aria-hidden="true"> · </span> 
+            {form.description || form.governingBody}
+            <span aria-hidden="true"> · </span>
             Due: {form.due_date ? new Date(form.due_date).toLocaleDateString() : 'N/A'}
           </div>
         </div>
-        <ActionButtons 
+        <ActionButtons
           formName={form.name}
           generatePDF={form.generatePDF}
           submitOnline={form.submitOnline}
+          autoFillForm={form.autoFillForm}
         />
       </div>
-      
+
       {form.sections && (
         <form className="mt-8">
           {Object.entries(form.sections).map(([sectionKey, section]: [string, FormSection]) => (
