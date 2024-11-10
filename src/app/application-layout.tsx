@@ -179,7 +179,11 @@ export function ApplicationLayout({
 
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>Due Soon</SidebarHeading>
-              
+              {featuredForms.map((form) => (
+                <SidebarItem key={form.id} href={`/forms/${form.id}`}>
+                  {form.name}
+                </SidebarItem>
+              ))}
             </SidebarSection>
 
             <SidebarSpacer />
