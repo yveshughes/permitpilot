@@ -41,3 +41,4 @@ next-env.d.ts
 directory.txt
 
 **/fastapi/.venv/
+**/fastapi/__pycache__/

@@ -1,0 +1,17 @@
+{
+    "business_name_dba": null,
+    "business_phone": null,
+    "business_address": null,
+    "city": null,
+    "zip_code": null,
+    "business_email": null,
+    "seating_capacity": null,
+    "square_footage": null,
+    "hours": null,
+    "is_lp": null,
+    "is_llp": null,
+    "is_corporation": null,
+    "is_llc": null,
+    "business_owner": null,
+    "owner_phone": null
+}
