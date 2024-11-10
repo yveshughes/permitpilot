@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { ArrowsUpDownIcon } from '@heroicons/react/24/outline'; // Outline version of the icon
 import { Badge } from '@/components/badge';
 import { Heading, Subheading } from '@/components/heading';
 import { Select } from '@/components/select';
@@ -27,13 +28,12 @@ const getFormProgress = async (): Promise<Form[]> => {
       .toISOString()
       .split('T')[0],
   }));
-}
+};
 
 export default function Home() {
   const [formProgress, setFormProgress] = useState<Form[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Form; direction: 'ascending' | 'descending' } | null>(null);
 
-  // Fetch form progress data on initial render using useEffect
   useEffect(() => {
     getFormProgress().then(setFormProgress);
   }, []);
@@ -110,12 +110,20 @@ export default function Home() {
       <Table className="mt-4 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <TableHead>
           <TableRow>
-            <TableHeader onClick={() => handleSort('name')}>Form Name</TableHeader>
-            <TableHeader onClick={() => handleSort('category')}>Category</TableHeader>
-            <TableHeader onClick={() => handleSort('frequency')}>Frequency</TableHeader>
-            <TableHeader onClick={() => handleSort('status')}>Status</TableHeader>
-            <TableHeader onClick={() => handleSort('progress')}>Progress</TableHeader>
-            <TableHeader onClick={() => handleSort('lastUpdated')}>Last Updated</TableHeader>
+            {["name", "category", "frequency", "status", "progress", "lastUpdated"].map((key) => (
+              <TableHeader key={key} onClick={() => handleSort(key as keyof Form)}>
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+                <ArrowsUpDownIcon
+                  className={`w-4 h-4 inline ml-1 ${
+                    sortConfig?.key === key
+                      ? sortConfig.direction === 'ascending'
+                        ? 'rotate-180 text-blue-500'
+                        : 'text-blue-500'
+                      : 'text-gray-400'
+                  }`}
+                />
+              </TableHeader>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -157,6 +165,5 @@ export default function Home() {
         </TableBody>
       </Table>
     </>
-  )
+  );
 }
-
