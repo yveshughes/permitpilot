@@ -131,7 +131,11 @@ export function ApplicationLayout({
                 <QueueListIcon />
                 <SidebarLabel>Dashboard</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/" current={pathname === '/'}>
+<<<<<<< HEAD
+              <SidebarItem href="/chat" current={pathname === '/'}>
+=======
+              <SidebarItem href="/chat" current={pathname.startsWith('/chat')}>
+>>>>>>> 30b9e798722dfc37e562fd184e4923c85ca0f6b1
                 <SparklesIcon />
                 <SidebarLabel>AI Chat</SidebarLabel>
               </SidebarItem>
@@ -164,11 +168,11 @@ export function ApplicationLayout({
             <Dropdown>
               <DropdownButton as={SidebarItem}>
                 <span className="flex min-w-0 items-center gap-3">
-                  <Avatar src="/users/erica.jpg" className="size-10" square alt="" />
+                  <Avatar src="/users/moe.png" className="size-10" square alt="" />
                   <span className="min-w-0">
-                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">Erica</span>
+                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">Moe</span>
                     <span className="block truncate text-xs/5 font-normal text-zinc-500 dark:text-zinc-400">
-                      erica@example.com
+                      moe@moe-llama.ai
                     </span>
                   </span>
                 </span>

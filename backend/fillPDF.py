@@ -188,7 +188,7 @@ if __name__ == "__main__":
     
     try:
         fill_pdf_form(
-            input_pdf_path=os.path.join(os.path.dirname(__file__), 'pdfs', 'FoodHealthPermitApplicationFillable.pdf'),
+            input_pdf_path=os.path.join(os.path.dirname(__file__), '../_files/pdfs', 'FoodHealthPermitApplicationFillable.pdf'),
             output_pdf_path='filled_form.pdf',
             form_data=sample_data
         )

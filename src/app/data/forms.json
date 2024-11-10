@@ -1,0 +1,237 @@
+{
+  "business_identification": {
+    "legal_name": {
+      "description": "Legal name of entity",
+      "forms": ["SS-4", "Fictitious Business Name Statement"]
+    },
+    "trade_name": {
+      "description": "Trade name/DBA",
+      "forms": ["SS-4", "Fictitious Business Name Statement"]
+    },
+    "business_structure": {
+      "description": "Type of entity/business structure",
+      "forms": ["SS-4", "Fictitious Business Name Statement", "Business Tax Declaration"],
+      "options": [
+        "Individual/Sole proprietor",
+        "General partnership",
+        "Corporation",
+        "Limited partnership",
+        "Limited liability company",
+        "Trust",
+        "Unincorporated association",
+        "Joint venture",
+        "Married couple",
+        "State/local registered domestic partners",
+        "Limited liability partnership",
+        "Church/church-controlled organization",
+        "Other nonprofit organization"
+      ]
+    },
+    "state_of_incorporation": {
+      "description": "State of incorporation/organization",
+      "forms": ["SS-4", "Fictitious Business Name Statement"]
+    },
+    "business_start_date": {
+      "description": "Date business started or acquired",
+      "forms": ["SS-4", "Fictitious Business Name Statement"]
+    },
+    "federal_ein": {
+      "description": "Federal Employer Identification Number",
+      "forms": ["Business Tax Declaration", "Fictitious Business Name Statement"]
+    },
+    "business_registration_number": {
+      "description": "Business Registration Certificate number",
+      "forms": ["Business Tax Declaration", "7624-P-25"]
+    },
+    "city_vendor_number": {
+      "description": "City vendor number",
+      "forms": ["Business Tax Declaration"]
+    }
+  },
+  "contact_information": {
+    "business_location": {
+      "street_address": {
+        "description": "Street address of principal place of business",
+        "forms": ["SS-4", "Fictitious Business Name Statement", "Building Permit", "Business Tax Declaration"]
+      },
+      "county_state": {
+        "description": "County and state of principal business",
+        "forms": ["SS-4", "Fictitious Business Name Statement"]
+      },
+      "city_state_zip": {
+        "description": "City, state, and ZIP code",
+        "forms": ["SS-4", "Fictitious Business Name Statement", "Building Permit", "Business Tax Declaration"]
+      },
+      "nearest_cross_street": {
+        "description": "Nearest cross street",
+        "forms": ["Building Permit"]
+      },
+      "block_lot": {
+        "description": "Assessment Block & Lot number",
+        "forms": ["Building Permit"]
+      }
+    },
+    "mailing_information": {
+      "mailing_address": {
+        "description": "Business mailing address",
+        "forms": ["SS-4", "Fictitious Business Name Statement", "Business Tax Declaration"]
+      },
+      "phone_number": {
+        "description": "Phone number",
+        "forms": ["Building Permit", "Sign Permit", "Business Tax Declaration"]
+      },
+      "fax_number": {
+        "description": "Fax number",
+        "forms": ["Building Permit", "Business Tax Declaration"]
+      }
+    }
+  },
+  "personnel_information": {
+    "owner_info": {
+      "description": "Owner/registrant full name",
+      "forms": ["Fictitious Business Name Statement", "Building Permit", "Business Tax Declaration"]
+    },
+    "responsible_party": {
+      "description": "Responsible party name",
+      "forms": ["SS-4"]
+    },
+    "architect_engineer": {
+      "description": "Architect/Engineer information",
+      "fields": ["Name", "California Certificate number", "Address", "Phone number"],
+      "forms": ["Building Permit", "Sign Permit"]
+    },
+    "contractor": {
+      "description": "General Contractor information",
+      "fields": ["Name", "License number", "Address", "Phone number"],
+      "forms": ["Building Permit", "Sign Permit"]
+    },
+    "construction_lender": {
+      "description": "Construction Lender information",
+      "fields": ["Name", "Branch designation"],
+      "forms": ["Building Permit", "Sign Permit"]
+    }
+  },
+  "tax_registration": {
+    "registration_fee": {
+      "description": "Business Registration Certificate fee",
+      "forms": ["7624-P-25"],
+      "options": ["$25", "$150", "$250", "$500"]
+    },
+    "payroll_tax": {
+      "description": "Payroll expense tax status",
+      "forms": ["7624-P-25"]
+    },
+    "tax_exempt_status": {
+      "description": "Tax-exempt status information",
+      "forms": ["7624-P-25", "Business Tax Declaration"]
+    },
+    "accounting_year": {
+      "description": "Closing month of accounting year",
+      "forms": ["SS-4"]
+    },
+    "employment_info": {
+      "description": "Employment information",
+      "fields": [
+        "Number of employees expected",
+        "Agricultural employees",
+        "Household employees",
+        "Other employees"
+      ],
+      "forms": ["SS-4"]
+    },
+    "workers_comp": {
+      "description": "Worker's compensation insurance",
+      "fields": ["Carrier", "Policy number"],
+      "forms": ["Building Permit", "Sign Permit"]
+    }
+  },
+  "building_construction": {
+    "building_details": {
+      "description": "Building specifications",
+      "fields": [
+        "Number of stories",
+        "Number of basements",
+        "Ground floor area",
+        "Lot size",
+        "Building height",
+        "Number of dwelling units",
+        "Building code occupancy class",
+        "Type of construction",
+        "Design live load for floors"
+      ],
+      "forms": ["Building Permit"]
+    },
+    "construction_details": {
+      "description": "Construction specifications",
+      "fields": [
+        "OSHA approval requirements",
+        "Street space usage",
+        "Subsidewall space usage",
+        "Auto runway construction",
+        "Property line extension"
+      ],
+      "forms": ["Building Permit"]
+    }
+  },
+  "sign_permit": {
+    "sign_details": {
+      "description": "Sign specifications",
+      "fields": [
+        "Type of sign",
+        "Size of sign",
+        "Illumination type",
+        "Purpose",
+        "Weight",
+        "Total surface area",
+        "Standardized approval number",
+        "Location details",
+        "Method of attachment"
+      ],
+      "forms": ["Sign Permit"]
+    }
+  },
+  "authorization": {
+    "applicant_type": {
+      "description": "Type of applicant",
+      "options": [
+        "Owner",
+        "Architect",
+        "Engineer",
+        "Lessee",
+        "Contractor",
+        "Attorney in fact",
+        "Agent with power of attorney"
+      ],
+      "forms": ["Building Permit", "Sign Permit", "Business Tax Declaration"]
+    },
+    "signatures": {
+      "description": "Required signatures and dates",
+      "forms": ["Building Permit", "Sign Permit", "Business Tax Declaration", "Fictitious Business Name Statement"]
+    },
+    "declarations": {
+      "description": "Legal declarations and agreements",
+      "fields": [
+        "Hold harmless agreement",
+        "Worker's compensation coverage",
+        "Business activity declarations"
+      ],
+      "forms": ["Building Permit", "Sign Permit", "Business Tax Declaration"]
+    }
+  },
+  "administrative": {
+    "processing": {
+      "description": "Internal processing information",
+      "fields": [
+        "Filing fees",
+        "Receipt numbers",
+        "Application numbers",
+        "Permit numbers",
+        "Date filed",
+        "Department approvals",
+        "Estimated cost",
+        "Revised cost"
+      ],
+      "forms": ["Building Permit", "Sign Permit", "Business Tax Declaration", "7624-P-25"]
+    }
+  }
+}
