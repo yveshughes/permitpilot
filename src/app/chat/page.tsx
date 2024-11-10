@@ -1,17 +1,10 @@
-import { Avatar } from '@/components/avatar'
-import { Badge } from '@/components/badge'
-import { Divider } from '@/components/divider'
-import { Heading, Subheading } from '@/components/heading'
-import { Select } from '@/components/select'
-import { Stat } from '@/components/stat'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
-import { getRecentOrders } from '@/data'
+import { Heading } from '@/components/heading'
+import SimpleChatInterface from '@/components/simple-chat-interface'
 
 export default async function Home() {
-  let orders = await getRecentOrders()
   return (
-    <>
-      <Heading>AI Chat</Heading>
-    </>
+    <div className="container mx-auto p-4">
+      <SimpleChatInterface />
+    </div>
   )
 }

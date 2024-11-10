@@ -131,7 +131,7 @@ export function ApplicationLayout({
                 <QueueListIcon />
                 <SidebarLabel>Dashboard</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/" current={pathname === '/'}>
+              <SidebarItem href="/chat" current={pathname.startsWith('/chat')}>
                 <SparklesIcon />
                 <SidebarLabel>AI Chat</SidebarLabel>
               </SidebarItem>
