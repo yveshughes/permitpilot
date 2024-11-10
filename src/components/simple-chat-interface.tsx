@@ -63,15 +63,57 @@ const SimpleChatInterface = () => {
     }
   }, [currentQuestion]);
 
-  const handleChoiceSelect = (choice: string) => {
+  const handleChoiceSelect = async (choice: string) => {
     if (awaitingChoice) {
+
+      // Send to backend
+      try {
+        const response = await fetch('/api/send-chat-qna', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            question: currentQuestion?.question,
+            answer: input,
+          })
+        })
+
+        console.log("Response:", response.json().then(data => console.log(data)));
+
+
+      } catch (error) {
+        console.error('Error sending message:', error)
+      }
+
       setAwaitingChoice(false);
       setTimeout(handleNextQuestion, 500);
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || awaitingChoice) return;
+
+    // Send to backend
+    try {
+      const response = await fetch('/api/send-chat-qna', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: currentQuestion?.question,
+          answer: input,
+        })
+      })
+
+      console.log("Response:", response.json().then(data => console.log(data)));
+
+
+    } catch (error) {
+      console.error('Error sending message:', error)
+    }
+
     setInput('');
     setTimeout(handleNextQuestion, 500);
   };
@@ -81,8 +123,8 @@ const SimpleChatInterface = () => {
       {/* Progress bar */}
       <div className="mb-8">
         <div className="w-full h-1 bg-gray-100 rounded-full">
-          <div 
-            className="h-1 bg-blue-500 rounded-full transition-all duration-500" 
+          <div
+            className="h-1 bg-blue-500 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
