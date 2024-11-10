@@ -18,6 +18,8 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.6",
     "next": "^14.2.17",
+    "node-abort-controller": "^3.1.1",
+    "node-fetch": "^2.7.0",
     "pdf-parse": "^1.1.1",
     "react": "^18",
     "react-dom": "^18",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.6",
+    "@types/node-fetch": "^2.6.11",
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "^18",
     "@types/react-dom": "^18",
