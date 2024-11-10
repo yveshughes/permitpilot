@@ -1,6 +1,27 @@
 import requests
 import json
 
+# USAGE:
+# keep giving the bot personal information in its questions. Then at one point ask:
+# You: "Based on our chat history and my responses, can you create python dictionary of my personal info"
+
+# RESULT: 
+# Bot: Based on our conversation so far, here's a Python dictionary containing some of the personal info we've discussed:
+
+#```
+#{
+#    "Name": "Ruben",
+#    "Hobby": "Soccer",
+#    "Favorite Team": "Manchester United",
+#    "Location": "Manchester"
+#}
+#```
+
+# TODO: CREATE ANOTHER AI that runs everytime a new item is added to the chat history. And does this calculation. 
+# Returns the string, and debug displays it. 
+
+# TODO: get it to ask relevant info to the PDF contents
+
 class SimpleChatBot:
     def __init__(self, together_api_key, model_name="meta-llama/Llama-3.2-3B-Instruct-Turbo"):
         """
@@ -65,7 +86,7 @@ class SimpleChatBot:
         prompt = (
             "You are a chatbot with memory of the conversation. "
             "Use the conversation history below to provide accurate responses.\n\n "
-            "If asked about previous messages, refer to them directly.\n\n"
+            "Keep asking the user questions to get their personal info (name, date, location, etc).\n\n"
             f"Conversation history:\n{history}\n\n"
             "Based on the above history, provide a direct response to the user's last message.\n"
             "Assistant:"
