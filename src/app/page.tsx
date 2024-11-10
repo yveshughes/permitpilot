@@ -1,44 +1,65 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowsUpDownIcon } from '@heroicons/react/24/outline'; // Outline version of the icon
+import { ArrowsUpDownIcon } from '@heroicons/react/24/outline';
 import { Badge } from '@/components/badge';
 import { Heading, Subheading } from '@/components/heading';
-import { Select } from '@/components/select';
 import { Stat } from '@/components/stat';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
-import { getForms } from '@/data-forms';
 
-interface Form {
-  id: number;
+interface FormData {
   name: string;
   category: string;
   frequency: string;
   status: string;
-  progress: number;
-  lastUpdated: string;
+  due_date: string;
 }
 
-const getFormProgress = async (): Promise<Form[]> => {
-  const forms = await getForms();
-  return forms.map(form => ({
-    ...form,
-    progress: Math.floor(Math.random() * 100),
-    lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split('T')[0],
-  }));
+const calculateProgress = (dueDate: string): number => {
+  const now = new Date();
+  const due = new Date(dueDate);
+  const timeLeft = due.getTime() - now.getTime();
+  const daysLeft = timeLeft / (1000 * 3600 * 24);
+  
+  if (daysLeft < 0) return 10;  
+  if (daysLeft <= 30) {
+    return Math.round(100 - (daysLeft / 30 * 100));
+  }
+  return 40;
 };
 
 export default function Home() {
-  const [formProgress, setFormProgress] = useState<Form[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Form; direction: 'ascending' | 'descending' } | null>(null);
+  const [forms, setForms] = useState<Record<string, FormData>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ 
+    key: keyof FormData; 
+    direction: 'ascending' | 'descending' 
+  } | null>(null);
 
   useEffect(() => {
-    getFormProgress().then(setFormProgress);
+    const fetchForms = async () => {
+      try {
+        console.log('Fetching forms data...');
+        const response = await fetch('/api/forms');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Received forms data:', data);
+        setForms(data);
+      } catch (err) {
+        console.error('Error fetching forms:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load forms');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForms();
   }, []);
 
-  const handleSort = (key: keyof Form) => {
+  const handleSort = (key: keyof FormData) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -46,26 +67,53 @@ export default function Home() {
     setSortConfig({ key, direction });
   };
 
-  const sortedForms = [...formProgress].sort((a, b) => {
+  const formsList = Object.entries(forms).map(([id, form]) => ({
+    id,
+    ...form
+  }));
+
+  const sortedForms = [...formsList].sort((a, b) => {
     if (sortConfig !== null) {
       const { key, direction } = sortConfig;
       if (a[key] < b[key]) return direction === 'ascending' ? -1 : 1;
       if (a[key] > b[key]) return direction === 'ascending' ? 1 : -1;
-      return 0;
     }
     return 0;
   });
 
-  const getCompletionStats = (forms: Form[]) => {
-    const completed = forms.filter(form => form.progress === 100).length;
-    const total = forms.length;
+  const getCompletionStats = (formsList: typeof sortedForms, frequencyFilter?: string) => {
+    const filteredForms = frequencyFilter 
+      ? formsList.filter(form => form.frequency === frequencyFilter)
+      : formsList;
+    
+    const total = filteredForms.length;
+    const completed = filteredForms.filter(form => 
+      calculateProgress(form.due_date) >= 90
+    ).length;
+    
     return { completed, total };
   };
 
-  const allStats = getCompletionStats(formProgress);
-  const onceStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Once'));
-  const annualStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Annual'));
-  const miscStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Miscellaneous'));
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading forms...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
+  const allStats = getCompletionStats(sortedForms);
+  const onceStats = getCompletionStats(sortedForms, 'Once');
+  const annualStats = getCompletionStats(sortedForms, 'Annual');
+  const miscStats = getCompletionStats(sortedForms, 'Miscellaneous');
 
   return (
     <>
@@ -103,58 +151,69 @@ export default function Home() {
       <Table className="mt-4 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <TableHead>
           <TableRow>
-            {["name", "category", "frequency", "status", "progress", "lastUpdated"].map((key) => (
-              <TableHeader key={key} onClick={() => handleSort(key as keyof Form)}>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-                <ArrowsUpDownIcon
-                  className={`w-4 h-4 inline ml-1 ${
-                    sortConfig?.key === key
-                      ? sortConfig.direction === 'ascending'
-                        ? 'rotate-180 text-blue-500'
-                        : 'text-blue-500'
-                      : 'text-gray-400'
-                  }`}
-                />
+            {["name", "category", "frequency", "status", "progress", "due_date"].map((key) => (
+              <TableHeader 
+                key={key} 
+                onClick={() => handleSort(key as keyof FormData)}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center gap-1">
+                  {key === 'due_date' ? 'Due Date' : key.charAt(0).toUpperCase() + key.slice(1)}
+                  <ArrowsUpDownIcon
+                    className={`w-4 h-4 ${
+                      sortConfig?.key === key
+                        ? sortConfig.direction === 'ascending'
+                          ? 'rotate-180 text-blue-500'
+                          : 'text-blue-500'
+                        : 'text-gray-400'
+                    }`}
+                  />
+                </div>
               </TableHeader>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedForms.map((form) => (
-            <TableRow key={form.id} href={`/forms/${form.id}`}>
-              <TableCell className="font-medium">{form.name}</TableCell>
-              <TableCell className="text-zinc-500">
-                {form.category.charAt(0).toUpperCase() + form.category.slice(1)}
-              </TableCell>
-              <TableCell className="text-zinc-500">
-                {form.frequency}
-              </TableCell>
-              <TableCell>
-                <Badge 
-                  color={form.status === 'required' ? 'red' : 
-                         form.status === 'optional' ? 'lime' : 'amber'}
-                >
-                  {form.status.charAt(0).toUpperCase() + form.status.slice(1)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-24 rounded-full bg-zinc-100">
-                    <div 
-                      className={`h-full rounded-full ${
-                        form.progress === 100 ? 'bg-green-500' :
-                        form.progress >= 70 ? 'bg-lime-500' :
-                        form.progress >= 30 ? 'bg-amber-500' : 'bg-red-500'
-                      }`}
-                      style={{ width: `${form.progress}%` }}
-                    />
+          {sortedForms.map((form) => {
+            const progress = calculateProgress(form.due_date);
+            return (
+              <TableRow key={form.id} href={`/forms/${form.id}`}>
+                <TableCell className="font-medium">{form.name}</TableCell>
+                <TableCell className="text-zinc-500">
+                  {form.category}
+                </TableCell>
+                <TableCell className="text-zinc-500">
+                  {form.frequency}
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    color={form.status.toLowerCase() === 'required' ? 'red' : 
+                           form.status.toLowerCase() === 'optional' ? 'lime' : 'amber'}
+                  >
+                    {form.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-24 rounded-full bg-zinc-100">
+                      <div 
+                        className={`h-full rounded-full ${
+                          progress >= 90 ? 'bg-green-500' :
+                          progress >= 70 ? 'bg-lime-500' :
+                          progress >= 30 ? 'bg-amber-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-zinc-600">{progress}%</span>
                   </div>
-                  <span className="text-sm text-zinc-600">{form.progress}%</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-zinc-500">{form.lastUpdated}</TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell className="text-zinc-500">
+                  {new Date(form.due_date).toLocaleDateString()}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </>
