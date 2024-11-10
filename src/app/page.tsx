@@ -5,13 +5,35 @@ import { Heading, Subheading } from '@/components/heading'
 import { Select } from '@/components/select'
 import { Stat } from '@/components/stat'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
-import { getRecentOrders } from '@/data'
+import { getForms } from '@/data-forms'
+
+// This would normally come from your backend/database
+const getFormProgress = async () => {
+  const forms = await getForms()
+  return forms.map(form => ({
+    ...form,
+    progress: Math.floor(Math.random() * 100), // Replace with actual progress data
+    lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0],
+  }))
+}
 
 export default async function Home() {
-  let orders = await getRecentOrders()
+  const formProgress = await getFormProgress()
+  
+  // Calculate stats
+  const totalForms = formProgress.length
+  const completedForms = formProgress.filter(form => form.progress === 100).length
+  const averageProgress = Math.floor(
+    formProgress.reduce((acc, form) => acc + form.progress, 0) / totalForms
+  )
+  const requiredForms = formProgress.filter(form => form.status === 'required').length
+
   return (
     <>
       <Heading>Good afternoon, Erica</Heading>
+
       <div className="mt-8 flex items-end justify-between">
         <Subheading>Overview</Subheading>
         <div>
@@ -23,36 +45,73 @@ export default async function Home() {
           </Select>
         </div>
       </div>
+
       <div className="mt-4 grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat title="Total revenue" value="$2.6M" change="+4.5%" />
-        <Stat title="Average order value" value="$455" change="-0.5%" />
-        <Stat title="Tickets sold" value="5,888" change="+4.5%" />
-        <Stat title="Pageviews" value="823,067" change="+21.2%" />
+        <Stat 
+          title="Total Forms" 
+          value={totalForms.toString()} 
+          change={`${completedForms} completed`} 
+        />
+        <Stat 
+          title="Average Progress" 
+          value={`${averageProgress}%`} 
+          change="+5.2%" 
+        />
+        <Stat 
+          title="Required Forms" 
+          value={requiredForms.toString()} 
+          change={`${Math.floor(requiredForms / totalForms * 100)}% of total`} 
+        />
+        <Stat 
+          title="Days Until Deadline" 
+          value="45" 
+          change="-2 days" 
+        />
       </div>
-      <Subheading className="mt-14">Recent orders</Subheading>
+
+      <Subheading className="mt-14">Form Progress</Subheading>
+      
       <Table className="mt-4 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <TableHead>
           <TableRow>
-            <TableHeader>Order number</TableHeader>
-            <TableHeader>Purchase date</TableHeader>
-            <TableHeader>Customer</TableHeader>
-            <TableHeader>Event</TableHeader>
-            <TableHeader className="text-right">Amount</TableHeader>
+            <TableHeader>Form Name</TableHeader>
+            <TableHeader>Category</TableHeader>
+            <TableHeader>Status</TableHeader>
+            <TableHeader>Progress</TableHeader>
+            <TableHeader>Last Updated</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id} href={order.url} title={`Order #${order.id}`}>
-              <TableCell>{order.id}</TableCell>
-              <TableCell className="text-zinc-500">{order.date}</TableCell>
-              <TableCell>{order.customer.name}</TableCell>
+          {formProgress.map((form) => (
+            <TableRow key={form.id} href={`/forms/${form.id}`}>
+              <TableCell className="font-medium">{form.name}</TableCell>
+              <TableCell className="text-zinc-500">
+                {form.category.charAt(0).toUpperCase() + form.category.slice(1)}
+              </TableCell>
+              <TableCell>
+                <Badge 
+                  color={form.status === 'required' ? 'red' : 
+                         form.status === 'optional' ? 'lime' : 'amber'}
+                >
+                  {form.status.charAt(0).toUpperCase() + form.status.slice(1)}
+                </Badge>
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <Avatar src={order.event.thumbUrl} className="size-6" />
-                  <span>{order.event.name}</span>
+                  <div className="h-2 w-24 rounded-full bg-zinc-100">
+                    <div 
+                      className={`h-full rounded-full ${
+                        form.progress === 100 ? 'bg-green-500' :
+                        form.progress >= 70 ? 'bg-lime-500' :
+                        form.progress >= 30 ? 'bg-amber-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${form.progress}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-zinc-600">{form.progress}%</span>
                 </div>
               </TableCell>
-              <TableCell className="text-right">US{order.amount.usd}</TableCell>
+              <TableCell className="text-zinc-500">{form.lastUpdated}</TableCell>
             </TableRow>
           ))}
         </TableBody>
