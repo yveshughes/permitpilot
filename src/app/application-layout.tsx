@@ -30,6 +30,7 @@ import {
   Cog8ToothIcon,
   LightBulbIcon,
   PlusIcon,
+  QueueListIcon,
   ShieldCheckIcon,
   UserCircleIcon,
 } from '@heroicons/react/16/solid'
@@ -127,8 +128,12 @@ export function ApplicationLayout({
           <SidebarBody>
             <SidebarSection>
               <SidebarItem href="/" current={pathname === '/'}>
-                <HomeIcon />
+                <QueueListIcon />
                 <SidebarLabel>Dashboard</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/" current={pathname === '/'}>
+                <SparklesIcon />
+                <SidebarLabel>AI Chat</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
                 <Cog6ToothIcon />
