@@ -1,6 +1,18 @@
 import requests
 import json
 
+# data needed (replace with dynamically read PDF data)
+dataWeNeed = {
+    '(Name of Business DBA)': None,
+    '(Business Phone)': None,
+    '(Business Address include street directions and suite number if applicable)': None,
+    '(City)': None,
+    '(Zip)': None,
+    '(Business EMail)': None,
+    '(Square Footage)': None,
+}
+# Note: We need to exit loop after it gets all the info, or else it repeats itself
+
 class SimpleChatBot:
     def __init__(self, together_api_key, model_name="meta-llama/Llama-3.2-3B-Instruct-Turbo"):
         self.api_key = together_api_key
@@ -34,25 +46,36 @@ class SimpleChatBot:
             for i, msg in enumerate(self.conversation, 1)
         ])
 
-        # Construct prompt for personal info extraction
+        # Construct prompt to extract and populate form data from the conversation
         analysis_prompt = (
-            "Based on the following conversation history, create a Python dictionary "
-            "containing all personal information mentioned about the user. Include only "
-            "factual information that was explicitly stated. Format the response as a "
-            "valid Python dictionary.\n\n"
+            "Based on the following conversation history, extract relevant information provided by the user "
+            "and populate the required fields in a Python dictionary. Only include information explicitly mentioned by the user, "
+            "and leave fields as None if they were not discussed in the conversation history. Format the response as a "
+            "valid Python dictionary with only the keys listed below.\n"
+            f"\n{dataWeNeed}\n\n"
             f"Conversation history:\n{history}\n\n"
-            "Return ONLY the Python dictionary, nothing else. Example format:\n"
-            "{\n    'name': 'John',\n    'location': 'New York'\n}\n\n"
-            "Dictionary of user's personal info:"
+            "Dictionary format:\n"
+            "{\n"
+            "    '(Name of Business DBA)': 'Example Business',\n"
+            "    '(Business Phone)': '(555) 123-4567',\n"
+            "    '(Business Address include street directions and suite number if applicable)': '123 Main St, Suite 101',\n"
+            "    '(City)': 'Los Angeles',\n"
+            "    '(Zip)': '90001',\n"
+            "    '(Business EMail)': 'example@business.com',\n"
+            "    '(Square Footage)': '2000'\n"
+            "}\n\n"
+            "Populate the dictionary based on the conversation history and return ONLY the Python dictionary, with values filled in if mentioned by the user.\n\n"
+            "Dictionary of user's form data:"
         )
+
 
         payload = {
             "model": self.model_name,
             "prompt": analysis_prompt,
             "max_tokens": 100,
-            "temperature": 0.1,
-            "top_p": 0.7,
-            "top_k": 50,
+            "temperature":0.3,  # Decrease temperature to reduce randomness
+            "top_k":20,  # Increase top-k to reduce randomness
+            "top_p":0.9,  # Increase top-p to reduce randomness
             "stop": ["User:", "Assistant:", "Conversation history:"]
         }
 
@@ -82,19 +105,7 @@ class SimpleChatBot:
             f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
             for msg in messages
         ])
-        
-        # data needed (replace with dynamically read PDF data)
-        dataWeNeed = {
-            '(Name of Business DBA)': None,
-            '(Business Phone)': None,
-            '(Business Address include street directions and suite number if applicable)': None,
-            '(City)': None,
-            '(Zip)': None,
-            '(Business EMail)': None,
-            '(Seating Bed Capacity Licensed Healthcare)': None,
-            '(Square Footage)': None,
-        }
-        # Note: We need to exit loop after it gets all the info, or else it repeats itself
+
 
         # Filter out fields that have already been provided by the user
         user_provided_data = {msg['content'] for msg in self.conversation if msg['role'] == 'user'}
@@ -190,7 +201,7 @@ def main():
         print(f"Bot: {response}")
         
         # After each response, analyze and display personal information
-        print("\n--- Current Personal Information Analysis ---")
+        print("\n--- Current Information Analysis ---")
         personal_info = chatbot.analyze_personal_info()
 
         # Find the position of the closing brace and trim everything after it (extra unecessary dialogue)
@@ -199,7 +210,7 @@ def main():
             personal_info = personal_info[:closing_brace_pos + 1]
 
         print(personal_info)
-        print("----------------------------------------------\n")
+        print("-------------------------------------\n")
 
 if __name__ == "__main__":
     main()
