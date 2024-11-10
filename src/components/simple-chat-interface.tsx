@@ -8,8 +8,11 @@ interface ChatQuestion {
   choices?: string[];
 }
 
+// Update the role type to be more strict
+type MessageRole = 'user' | 'assistant';
+
 interface ConversationMessage {
-  role: 'user' | 'assistant';
+  role: MessageRole;
   content: string;
 }
 
@@ -23,7 +26,7 @@ interface FormData {
   '(Square Footage)': string | null;
 }
 
-const IntegratedChatInterface = () => {
+const IntegratedChatInterface: React.FC = () => {
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [input, setInput] = useState<string>('');
   const [formData] = useState<FormData>({
@@ -45,7 +48,9 @@ const IntegratedChatInterface = () => {
   const progress = (Object.values(formData).filter(value => value !== null).length / Object.keys(formData).length) * 100;
 
   const getResponse = async (userInput: string) => {
-    const newConversation = [...conversation, { role: 'user', content: userInput }];
+    // Create new message with strict typing
+    const userMessage: ConversationMessage = { role: 'user', content: userInput };
+    const newConversation = [...conversation, userMessage];
     setConversation(newConversation);
 
     const remainingData = Object.entries(formData)
@@ -94,17 +99,20 @@ const IntegratedChatInterface = () => {
       
       const result = await response.json();
       if (result.output?.choices?.[0]?.text) {
-        const botResponse = result.output.choices[0].text.trim();
-        const updatedConversation = [...newConversation, { role: 'assistant', content: botResponse }];
-        setConversation(updatedConversation);
+        const botResponse: ConversationMessage = {
+          role: 'assistant',
+          content: result.output.choices[0].text.trim()
+        };
+        setConversation([...newConversation, botResponse]);
         setMessageExchanges(prev => prev + 1);
       }
     } catch (error) {
       console.error('Error getting response:', error);
-      setConversation([...newConversation, { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
-      }]);
+      const errorMessage: ConversationMessage = {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.'
+      };
+      setConversation([...newConversation, errorMessage]);
     }
   };
 
@@ -129,7 +137,7 @@ const IntegratedChatInterface = () => {
 
       return () => clearTimeout(delay);
     }
-  }, []);
+  }, [conversation.length]); // Add conversation.length as dependency
 
   return (
     <div className="max-w-2xl mx-auto p-4">
