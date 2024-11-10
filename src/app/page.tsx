@@ -1,36 +1,69 @@
-import { Badge } from '@/components/badge'
-import { Heading, Subheading } from '@/components/heading'
-import { Select } from '@/components/select'
-import { Stat } from '@/components/stat'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
-import { getForms } from '@/data-forms'
+import { useState, useEffect } from 'react';
+import { Badge } from '@/components/badge';
+import { Heading, Subheading } from '@/components/heading';
+import { Select } from '@/components/select';
+import { Stat } from '@/components/stat';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
+import { getForms } from '@/data-forms';
 
-// This would normally come from your backend/database
-const getFormProgress = async () => {
-  const forms = await getForms()
+interface Form {
+  id: number;
+  name: string;
+  category: string;
+  frequency: string;
+  status: string;
+  progress: number;
+  lastUpdated: string;
+}
+
+const getFormProgress = async (): Promise<Form[]> => {
+  const forms = await getForms();
   return forms.map(form => ({
     ...form,
-    progress: Math.floor(Math.random() * 100), // Replace with actual progress data
+    progress: Math.floor(Math.random() * 100),
     lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000)
       .toISOString()
       .split('T')[0],
-  }))
+  }));
 }
 
-export default async function Home() {
-  const formProgress = await getFormProgress()
-  
-  // Calculate completion stats for each frequency
-  const getCompletionStats = (forms) => {
-    const completed = forms.filter(form => form.progress === 100).length
-    const total = forms.length
-    return { completed, total }
-  }
+export default function Home() {
+  const [formProgress, setFormProgress] = useState<Form[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Form; direction: 'ascending' | 'descending' } | null>(null);
 
-  const allStats = getCompletionStats(formProgress)
-  const onceStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Once'))
-  const annualStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Annual'))
-  const miscStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Miscellaneous'))
+  // Fetch form progress data on initial render using useEffect
+  useEffect(() => {
+    getFormProgress().then(setFormProgress);
+  }, []);
+
+  const handleSort = (key: keyof Form) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedForms = [...formProgress].sort((a, b) => {
+    if (sortConfig !== null) {
+      const { key, direction } = sortConfig;
+      if (a[key] < b[key]) return direction === 'ascending' ? -1 : 1;
+      if (a[key] > b[key]) return direction === 'ascending' ? 1 : -1;
+      return 0;
+    }
+    return 0;
+  });
+
+  const getCompletionStats = (forms: Form[]) => {
+    const completed = forms.filter(form => form.progress === 100).length;
+    const total = forms.length;
+    return { completed, total };
+  };
+
+  const allStats = getCompletionStats(formProgress);
+  const onceStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Once'));
+  const annualStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Annual'));
+  const miscStats = getCompletionStats(formProgress.filter(f => f.frequency === 'Miscellaneous'));
 
   return (
     <>
@@ -75,16 +108,16 @@ export default async function Home() {
       <Table className="mt-4 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <TableHead>
           <TableRow>
-            <TableHeader>Form Name</TableHeader>
-            <TableHeader>Category</TableHeader>
-            <TableHeader>Frequency</TableHeader>
-            <TableHeader>Status</TableHeader>
-            <TableHeader>Progress</TableHeader>
-            <TableHeader>Last Updated</TableHeader>
+            <TableHeader onClick={() => handleSort('name')}>Form Name</TableHeader>
+            <TableHeader onClick={() => handleSort('category')}>Category</TableHeader>
+            <TableHeader onClick={() => handleSort('frequency')}>Frequency</TableHeader>
+            <TableHeader onClick={() => handleSort('status')}>Status</TableHeader>
+            <TableHeader onClick={() => handleSort('progress')}>Progress</TableHeader>
+            <TableHeader onClick={() => handleSort('lastUpdated')}>Last Updated</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {formProgress.map((form) => (
+          {sortedForms.map((form) => (
             <TableRow key={form.id} href={`/forms/${form.id}`}>
               <TableCell className="font-medium">{form.name}</TableCell>
               <TableCell className="text-zinc-500">
@@ -124,3 +157,4 @@ export default async function Home() {
     </>
   )
 }
+
