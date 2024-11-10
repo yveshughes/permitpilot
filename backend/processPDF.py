@@ -94,7 +94,7 @@ def main():
     chatbot = PDFChatBot(api_key)
     
     # Hardcode the path to your PDF file here
-    pdf_path = os.path.join(os.path.dirname(__file__), '../_files/pdfs', 'FoodHealthPermitApplicationFillable.pdf')
+    pdf_path = os.path.join(os.path.dirname(__file__), '../public/pdfs', 'FoodHealthPermitApplicationFillable.pdf')
     
     chatbot.load_pdf(pdf_path)
     
