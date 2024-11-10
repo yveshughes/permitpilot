@@ -11,6 +11,8 @@
     "status": "Required",
     "due_date": "2024-11-24",
     "featured": true,
+    "generatePDF": true,
+    "submitOnline": true,
     "sections": {
       "business_identification": {
         "legal_name": {
@@ -87,6 +89,8 @@
     "status": "Conditional",
     "due_date": "2024-12-10",
     "featured": true,
+    "generatePDF": true,
+    "submitOnline": true,
     "sections": {
       "business_identification": {
         "trade_name": {
@@ -150,7 +154,9 @@
     "frequency": "Annual",
     "status": "Required",
     "due_date": "2024-11-17",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "seller-permit": {
     "id": 1003,
@@ -163,7 +169,9 @@
     "frequency": "Once",
     "status": "Required",
     "due_date": "2024-11-24",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "health-permit": {
     "id": 1005,
@@ -176,7 +184,9 @@
     "frequency": "Annual",
     "status": "Conditional",
     "due_date": "2024-11-10",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "food-safety-certification": {
     "id": 1006,
@@ -189,7 +199,9 @@
     "frequency": "Annual",
     "status": "Conditional",
     "due_date": "2024-11-10",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "building-permit": {
     "id": 1007,
@@ -201,7 +213,9 @@
     "category": "Permits",
     "frequency": "Once",
     "status": "Conditional",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "workers-compensation": {
     "id": 1008,
@@ -214,7 +228,9 @@
     "frequency": "Annual",
     "status": "Required",
     "due_date": "2024-11-10",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "fire-department-permit": {
     "id": 1009,
@@ -227,7 +243,9 @@
     "frequency": "Annual",
     "status": "Conditional",
     "due_date": "2024-11-10",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "liquor-license": {
     "id": 1010,
@@ -239,7 +257,9 @@
     "category": "Permits",
     "frequency": "Miscellaneous",
     "status": "Conditional",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "property-taxes": {
     "id": 1011,
@@ -252,7 +272,9 @@
     "frequency": "Annual",
     "status": "Conditional",
     "due_date": "2025-11-01",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "federal-income-tax": {
     "id": 1012,
@@ -265,7 +287,9 @@
     "frequency": "Annual",
     "status": "Required",
     "due_date": "2025-04-15",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "california-income-tax": {
     "id": 1013,
@@ -278,7 +302,9 @@
     "frequency": "Annual",
     "status": "Required",
     "due_date": "2025-04-15",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "gross-receipts-tax": {
     "id": 1014,
@@ -291,7 +317,9 @@
     "frequency": "Annual",
     "status": "Required",
     "due_date": "2025-02-28",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "health-care-security": {
     "id": 1015,
@@ -304,6 +332,8 @@
     "frequency": "Annual",
     "status": "Conditional",
     "due_date": "2025-04-30",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   }
 }
