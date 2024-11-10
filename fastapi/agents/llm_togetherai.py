@@ -3,6 +3,7 @@ import os
 from custom_types import ChatQnA
 import asyncio
 import logging
+from .json_maker import create_business_json
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,7 +24,6 @@ async def analyze_info(question: str, answer: str):
       start_time = time.time()
       logging.info("Attempting chat completion...")
 
-      # generated_note_response = await asyncio.create_task(get_chat_completion(note_generation_context))
       extracted_info_response = {
          "question": question,
           "answer": answer,
@@ -31,8 +31,18 @@ async def analyze_info(question: str, answer: str):
       }
 
       logging.info("Chat completion:", extracted_info_response)
+
+      logging.info("Starting create_business_json...")
+      generated_business_json = await create_business_json(answer)
+      logging.info("create_business_json completed")
+      logging.info(f"generate_business_json: {generated_business_json}")
+
+      logging.info("Chat completion completed")
+
       logging.info(f"analyze_info completed in {time.time() - start_time:.2f} seconds")
-      return extracted_info_response
+      
+      return generated_business_json
+      # return extracted_info_response
   except Exception as e:
       logging.info(f"Error in analyze_info: {e}")
       return None

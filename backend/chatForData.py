@@ -171,17 +171,17 @@ def main():
         if user_input.lower() == 'quit':
             print("Goodbye!")
             break
-        elif user_input.lower() == 'memory':
-            chatbot.show_memory()
-            continue
-        elif user_input.lower() == 'debug on':
-            chatbot.debug = True
-            print("Debug mode enabled")
-            continue
-        elif user_input.lower() == 'debug off':
-            chatbot.debug = False
-            print("Debug mode disabled")
-            continue
+        # elif user_input.lower() == 'memory':
+        #     chatbot.show_memory()
+        #     continue
+        # elif user_input.lower() == 'debug on':
+        #     chatbot.debug = True
+        #     print("Debug mode enabled")
+        #     continue
+        # elif user_input.lower() == 'debug off':
+        #     chatbot.debug = False
+        #     print("Debug mode disabled")
+        #     continue
         elif user_input == "":
             print("Please enter a message.")
             continue

@@ -7,81 +7,82 @@ class ChatQnA(BaseModel):
   answer: str
 
 class BusinessDetails(BaseModel):
-    business_owner_name: Optional[str] = Field(
-        None,
+    """Try and only extract the core info, don't give any additional info"""
+    business_owner_name: str = Field(
+        ...,
         description="Name of business owner",
         alias="(Business Owner)"
     )
-    business_owner_phone: Optional[str] = Field(
-        None,
+    business_owner_phone: str = Field(
+        ...,
         description="Phone number of business owner",
         alias="(Business Owner Phone)"
     )
-    business_name_dba: Optional[str] = Field(
-        None, 
+    business_name_dba: str = Field(
+        ..., 
         description="Name of Business DBA",
         alias="(Name of Business DBA)"
     )
-    business_phone: Optional[str] = Field(
-        None,
+    business_phone: str = Field(
+        ...,
         description="Business phone number",
         alias="(Business Phone)"
     )
-    business_address: Optional[str] = Field(
-        None,
+    business_address: str = Field(
+        ...,
         description="Business address including street directions and suite number if applicable",
         alias="(Business Address include street directions and suite number if applicable)"
     )
-    city: Optional[str] = Field(
-        None,
+    city: str = Field(
+        ...,
         description="City where business is located",
         alias="(City)"
     )
-    zip_code: Optional[str] = Field(
-        None,
+    zip_code: str = Field(
+        ...,
         description="ZIP code of business location",
         alias="(Zip)"
     )
-    business_email: Optional[str] = Field(
-        None,
-        description="Business email address",
-        alias="(Business EMail)"
-    )
-    seating_capacity: Optional[str] = Field(
-        None,
-        description="Seating or bed capacity for licensed healthcare facilities",
-        alias="(Seating  Bed Capacity Licensed Healthcare)"
-    )
-    square_footage: Optional[str] = Field(
-        None,
-        description="Square footage of the business premises",
-        alias="(Square Footage)"
-    )
-    hours: Optional[str] = Field(
-        None,
-        description="Business operating hours",
-        alias="(hours)"
-    )
-    is_lp: Optional[str] = Field(
-        None,
-        description="Limited Partnership status",
-        alias="(LP)"
-    )
-    is_llp: Optional[str] = Field(
-        None,
-        description="Limited Liability Partnership status",
-        alias="(LLP)"
-    )
-    is_corporation: Optional[str] = Field(
-        None,
-        description="Corporation status",
-        alias="(Corporation)"
-    )
-    is_llc: Optional[str] = Field(
-        None,
-        description="Limited Liability Company status",
-        alias="(LLC)"
-    )
+    # business_email: str = Field(
+    #     None,
+    #     description="Business email address",
+    #     alias="(Business EMail)"
+    # )
+    # seating_capacity: str = Field(
+    #     None,
+    #     description="Seating or bed capacity for licensed healthcare facilities",
+    #     alias="(Seating  Bed Capacity Licensed Healthcare)"
+    # )
+    # square_footage: str = Field(
+    #     None,
+    #     description="Square footage of the business premises",
+    #     alias="(Square Footage)"
+    # )
+    # hours: str = Field(
+    #     None,
+    #     description="Business operating hours",
+    #     alias="(hours)"
+    # )
+    # is_lp: str = Field(
+    #     None,
+    #     description="Limited Partnership status",
+    #     alias="(LP)"
+    # )
+    # is_llp: str = Field(
+    #     None,
+    #     description="Limited Liability Partnership status",
+    #     alias="(LLP)"
+    # )
+    # is_corporation: str = Field(
+    #     None,
+    #     description="Corporation status",
+    #     alias="(Corporation)"
+    # )
+    # is_llc: str = Field(
+    #     None,
+    #     description="Limited Liability Company status",
+    #     alias="(LLC)"
+    # )
 
 # class VoiceNote(BaseModel):
 #   title: str = Field(description="A title for the voice note")
