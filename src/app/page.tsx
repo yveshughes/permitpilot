@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/badge';
 import { Heading, Subheading } from '@/components/heading';
