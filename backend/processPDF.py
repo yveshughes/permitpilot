@@ -32,6 +32,7 @@ class PDFChatBot:
         
         self.vector_store = None
         self.qa_chain = None
+        self.system_prompt = "Assume the role of an expert form-filler for permit applications. Your goal is gather all the information needed, from the user (e.g. What is your Business Name?, Who is the Business Owner?, etc). Store this info in your memory. You should only be asking questions! and gathering"
 
     def load_pdf(self, pdf_path):
         """
@@ -92,9 +93,10 @@ def main():
     # Initialize chatbot
     chatbot = PDFChatBot(api_key)
     
-    # Example usage
-    pdf_path = input("Enter the path to your PDF file: ")
-    print(chatbot.load_pdf(pdf_path))
+    # Hardcode the path to your PDF file here
+    pdf_path = os.path.join(os.path.dirname(__file__), '../_files/pdfs', 'FoodHealthPermitApplicationFillable.pdf')
+    
+    chatbot.load_pdf(pdf_path)
     
     chat_history = []
     while True:
