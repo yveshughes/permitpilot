@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, { useState, useEffect } from 'react';
 
@@ -8,76 +8,131 @@ interface ChatQuestion {
   choices?: string[];
 }
 
-const SimpleChatInterface = () => {
-  const [currentQuestion, setCurrentQuestion] = useState<ChatQuestion | null>(null);
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface FormData {
+  '(Name of Business DBA)': string | null;
+  '(Business Phone)': string | null;
+  '(Business Address include street directions and suite number if applicable)': string | null;
+  '(City)': string | null;
+  '(Zip)': string | null;
+  '(Business Email)': string | null;
+  '(Square Footage)': string | null;
+}
+
+const IntegratedChatInterface = () => {
+  const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [input, setInput] = useState<string>('');
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [awaitingChoice, setAwaitingChoice] = useState<boolean>(false);
+  const [formData] = useState<FormData>({
+    '(Name of Business DBA)': null,
+    '(Business Phone)': null,
+    '(Business Address include street directions and suite number if applicable)': null,
+    '(City)': null,
+    '(Zip)': null,
+    '(Business Email)': null,
+    '(Square Footage)': null,
+  });
+  const [messageExchanges, setMessageExchanges] = useState<number>(0);
 
-  // Chat flow configuration
-  const chatFlow: ChatQuestion[] = [
-    {
-      question: "Hi! What kind of AI project did you work on at the hackathon? Can you describe it briefly?",
-      type: "text"
-    },
-    {
-      question: "That's interesting! Which programming languages or AI frameworks did you use?",
-      type: "choice",
-      choices: ["Python/TensorFlow", "JavaScript/TensorFlow.js", "Python/PyTorch", "Java/DL4J", "Other"]
-    },
-    {
-      question: "What was the biggest technical challenge you faced?",
-      type: "text"
-    },
-    {
-      question: "How many team members worked with you on this project?",
-      type: "choice",
-      choices: ["Solo project", "2-3 members", "4-5 members", "6+ members"]
-    },
-    {
-      question: "What's next for your project? Are you planning to develop it further?",
-      type: "text"
-    }
-  ];
+  const API_KEY = "b0222468fe741dec70c263c2db264b97a79e1b8169cc23625c314d316bf09b27";
+  const MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct-Turbo";
+  const API_URL = "https://api.together.xyz/inference";
 
-  // Calculate progress (0-100)
-  const progress = Math.min((currentStep / chatFlow.length) * 100, 100);
+  // Calculate progress based on filled form fields
+  const progress = (Object.values(formData).filter(value => value !== null).length / Object.keys(formData).length) * 100;
 
-  const handleNextQuestion = () => {
-    if (currentStep < chatFlow.length) {
-      const nextQuestion = chatFlow[currentStep];
-      setCurrentQuestion(nextQuestion);
-      setAwaitingChoice(nextQuestion.type === 'choice');
-      setCurrentStep(prev => prev + 1);
-    } else {
-      setCurrentQuestion({
-        question: "Thank you for sharing your hackathon experience! Would you like to tell me more about your other projects?",
-        type: "text"
+  const getResponse = async (userInput: string) => {
+    const newConversation = [...conversation, { role: 'user', content: userInput }];
+    setConversation(newConversation);
+
+    const remainingData = Object.entries(formData)
+      .filter(([_, value]) => value === null)
+      .reduce((obj, [key]) => ({ ...obj, [key]: null }), {});
+
+    const prompt = `You are a chatbot designed to guide users through completing a permit form, 
+      similar to an interactive assistant like TurboTax. 
+      Use the conversation history below and the data requirements in 'formData' 
+      to ask only necessary questions and gather the required information for each field.
+
+      Only ask questions about fields that haven't been provided by the user yet. 
+      Do not repeat questions the user has already answered, and focus on one field at a time.
+      If all required information has been collected, acknowledge this and let the user know.
+
+      Here are the remaining data requirements:
+      ${JSON.stringify(remainingData, null, 2)}
+
+      Conversation history:
+      ${newConversation.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+
+      Based on the above history and the remaining fields in 'formData', 
+      ask the user a relevant question to complete their permit form.
+      Assistant:`;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: MODEL_NAME,
+          prompt: prompt,
+          max_tokens: 100,
+          temperature: 0.1,
+          top_p: 0.7,
+          top_k: 50,
+          repetition_penalty: 1.1,
+          stop: ["\n", "User:", "Assistant:", "Conversation history:", "(Note:"]
+        })
       });
-    }
-  };
 
-  useEffect(() => {
-    if (!currentQuestion) {
-      handleNextQuestion();
-    }
-  }, [currentQuestion]);
-
-  const handleChoiceSelect = (choice: string) => {
-    if (awaitingChoice) {
-      setAwaitingChoice(false);
-      setTimeout(handleNextQuestion, 500);
+      if (!response.ok) throw new Error('API request failed');
+      
+      const result = await response.json();
+      if (result.output?.choices?.[0]?.text) {
+        const botResponse = result.output.choices[0].text.trim();
+        const updatedConversation = [...newConversation, { role: 'assistant', content: botResponse }];
+        setConversation(updatedConversation);
+        setMessageExchanges(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error getting response:', error);
+      setConversation([...newConversation, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
     }
   };
 
   const handleSend = () => {
-    if (!input.trim() || awaitingChoice) return;
+    if (!input.trim()) return;
+    getResponse(input);
     setInput('');
-    setTimeout(handleNextQuestion, 500);
   };
 
+  const handleSubmit = () => {
+    // Handle form submission here
+    console.log('Form submitted!', formData);
+    // You can add your submission logic here
+  };
+
+  // Initialize conversation with a delay
+  useEffect(() => {
+    if (conversation.length === 0) {
+      const delay = setTimeout(() => {
+        getResponse("Hello");
+      }, 500);
+
+      return () => clearTimeout(delay);
+    }
+  }, []);
+
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto p-4">
       {/* Progress bar */}
       <div className="mb-8">
         <div className="w-full h-1 bg-gray-100 rounded-full">
@@ -88,50 +143,53 @@ const SimpleChatInterface = () => {
         </div>
       </div>
 
-      {/* Question display */}
-      {currentQuestion && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-normal text-gray-900 mb-8">
-            {currentQuestion.question}
-          </h2>
+      {/* Conversation display */}
+      <div className="mb-8 space-y-4">
+        {conversation.map((msg, index) => (
+          <div 
+            key={index} 
+            className={`p-4 rounded-lg ${
+              msg.role === 'assistant' 
+                ? 'bg-blue-100 ml-4' 
+                : 'bg-gray-100 mr-4'
+            }`}
+          >
+            {msg.content}
+          </div>
+        ))}
+      </div>
 
-          {/* Multiple choice buttons */}
-          {currentQuestion.choices ? (
-            <div className="space-y-3">
-              {currentQuestion.choices.map((choice: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => handleChoiceSelect(choice)}
-                  className="w-full px-4 py-3 text-left text-lg text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                >
-                  {choice}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="relative">
-              <input
-                type="text"
-                value={input}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                onKeyPress={(e: React.KeyboardEvent) => e.key === 'Enter' && handleSend()}
-                placeholder="Answer here..."
-                className="w-full px-4 py-3 text-lg border-b-2 border-gray-200 focus:border-blue-500 focus:outline-none"
-              />
-              <button
-                onClick={handleSend}
-                className="absolute right-4 top-1/2 -translate-y-1/2"
-              >
-                <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11l-7-7m0 0l-7 7m7-7v18" />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
+      {/* Input area */}
+      <div className="relative">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="Type your message..."
+          className="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+        />
+        <button
+          onClick={handleSend}
+          className="absolute right-4 top-1/2 -translate-y-1/2"
+        >
+          <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11l-7-7m0 0l-7 7m7-7v18" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Submit button - appears after 5 message exchanges */}
+      {messageExchanges >= 5 && (
+        <button
+          onClick={handleSubmit}
+          className="w-full mt-8 px-6 py-4 text-xl font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+        >
+          SUBMIT
+        </button>
       )}
     </div>
   );
 };
 
-export default SimpleChatInterface;
+export default IntegratedChatInterface;
