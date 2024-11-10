@@ -72,26 +72,53 @@ class SimpleChatBot:
             return f"API Error: {str(e)}"
 
     def get_response(self, user_input):
+        # Add user input to conversation history
         self.conversation.append({"role": "user", "content": user_input})
         self.print_debug("Current Conversation History", self.conversation)
-        
+
+        # Extract the last `max_history` messages to include in the prompt
         messages = self.conversation[-self.max_history:]
         history = "\n".join([
             f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
             for msg in messages
         ])
         
+        # data needed (replace with dynamically read PDF data)
+        dataWeNeed = {
+            '(Name of Business DBA)': None,
+            '(Business Phone)': None,
+            '(Business Address include street directions and suite number if applicable)': None,
+            '(City)': None,
+            '(Zip)': None,
+            '(Business EMail)': None,
+            '(Seating Bed Capacity Licensed Healthcare)': None,
+            '(Square Footage)': None,
+        }
+        # Note: We need to exit loop after it gets all the info, or else it repeats itself
+
+        # Filter out fields that have already been provided by the user
+        user_provided_data = {msg['content'] for msg in self.conversation if msg['role'] == 'user'}
+        remaining_data_needed = {k: v for k, v in dataWeNeed.items() if v not in user_provided_data}
+
+        # Update the prompt to only include remaining data needed
         prompt = (
-            "You are a chatbot with memory of the conversation. "
-            "Use the conversation history below to provide accurate responses.\n\n"
-            "Keep asking the user questions to get their personal info (name, date, location, etc).\n\n"
+            "You are a chatbot designed to guide users through completing a permit form, "
+            "similar to an interactive assistant like TurboTax. "
+            "Use the conversation history below and the data requirements in 'dataWeNeed' "
+            "to ask only necessary questions and gather the required information for each field.\n\n"
+            "Only ask questions about fields that haven't been provided by the user yet. "
+            "Do not repeat questions the user has already answered, and focus on one field at a time.\n\n"
+            "If all required information has been collected, acknowledge this and let the user know.\n\n"
+            f"Here are the remaining data requirements:\n{remaining_data_needed}\n\n"
             f"Conversation history:\n{history}\n\n"
-            "Based on the above history, provide a direct response to the user's last message.\n"
+            "Based on the above history and the remaining fields in 'dataWeNeed', "
+            "ask the user a relevant question to complete their permit form.\n"
             "Assistant:"
         )
 
         self.print_debug("Prompt Sent to Model", prompt)
 
+        # Set up payload for API request
         payload = {
             "model": self.model_name,
             "prompt": prompt,
@@ -100,7 +127,7 @@ class SimpleChatBot:
             "top_p": 0.7,
             "top_k": 50,
             "repetition_penalty": 1.1,
-            "stop": ["User:", "Assistant:", "Conversation history:", "(Note:"]
+            "stop": ["\n", "User:", "Assistant:", "Conversation history:", "(Note:"] # ignore responses after newlines
         }
 
         try:
@@ -108,7 +135,7 @@ class SimpleChatBot:
             response.raise_for_status()
             result = response.json()
             self.print_debug("Raw API Response", result)
-            
+
             if 'output' in result and 'choices' in result['output']:
                 bot_response = result['output']['choices'][0]['text'].strip()
                 self.conversation.append({"role": "assistant", "content": bot_response})
@@ -117,7 +144,7 @@ class SimpleChatBot:
                 return bot_response
             else:
                 return "Error: Unexpected API response format"
-                
+                    
         except requests.exceptions.RequestException as e:
             return f"API Error: {str(e)}"
 
@@ -172,7 +199,7 @@ def main():
             personal_info = personal_info[:closing_brace_pos + 1]
 
         print(personal_info)
-        print("----------------------------------------\n")
+        print("----------------------------------------------\n")
 
 if __name__ == "__main__":
     main()
