@@ -25,6 +25,7 @@ import { SidebarLayout } from '@/components/sidebar-layout'
 import { getEvents } from '@/data'
 import {
   ArrowRightStartOnRectangleIcon,
+  BuildingStorefrontIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   Cog8ToothIcon,
@@ -133,10 +134,11 @@ export function ApplicationLayout({
                 <SparklesIcon />
                 <SidebarLabel>AI Chat</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
-                <Cog6ToothIcon />
-                <SidebarLabel>Settings</SidebarLabel>
+              <SidebarItem href="/business" current={pathname.startsWith('/business')}>
+                <BuildingStorefrontIcon />
+                <SidebarLabel>My Business</SidebarLabel>
               </SidebarItem>
+              
             </SidebarSection>
 
             <SidebarSection className="max-lg:hidden">
