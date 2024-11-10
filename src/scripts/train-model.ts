@@ -1,9 +1,13 @@
 // src/scripts/train-model.ts
-const { readdir, readFile } = require('fs/promises');
+const fs = require('fs').promises;
 const path = require('path');
 const pdfParse = require('pdf-parse');
-const fs = require('fs').promises;
 const dotenv = require('dotenv');
+const nodeFetch = require('node-fetch');
+const NodeAbortController = require('node-abort-controller');
+
+// Import type only for fetch Response
+import type { Response } from 'node-fetch';
 
 // Load environment variables first, before any checks
 dotenv.config({ path: '.env.local', override: true });
@@ -21,42 +25,86 @@ interface PDFData {
   numpages: number;
 }
 
-const parseOptions = {
-  pagerender: undefined,
+interface FetchOptions {
+  method: string;
+  headers: Record<string, string>;
+  body: string;
+  signal?: AbortSignal;
+}
+
+const PDF_PARSE_OPTIONS = {
+  pagerender: undefined as undefined,
   max: 0,
   version: 'v2.0.550'
 };
 
+// Rest of the code remains the same but use nodeFetch instead of fetch
+async function fetchWithRetry(url: string, options: FetchOptions, retries = 3, timeout = 30000): Promise<Response> {
+  let lastError: Error;
+  
+  for (let i = 0; i < retries; i++) {
+    try {
+      const controller = new NodeAbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      const response = await nodeFetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      }
+
+      return response;
+    } catch (err) {
+      lastError = err as Error;
+      console.error(`Attempt ${i + 1} failed:`, lastError.message);
+      
+      if (i < retries - 1) {
+        const delay = Math.pow(2, i) * 1000; // exponential backoff
+        console.log(`Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError!;
+}
+
 async function trainModel(): Promise<void> {
-  // Debug: Print environment status
-  const envPath = path.join(process.cwd(), '.env.local');
-  console.log('Reading .env.local from:', envPath);
-  const envContent = await fs.readFile(envPath, 'utf8');
-  console.log('Raw .env.local content:', envContent);
-
-  const MINDSDB_API_ENDPOINT = 'https://cloud.mindsdb.com/api/sql/query';
-  const MINDSDB_KEY = process.env.MINDSDB_RC_KEY;
-  const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
-
-  console.log('\nEnvironment variables loaded:');
-  console.log('MINDSDB_RC_KEY:', MINDSDB_KEY ? '✓ Present' : '✗ Missing');
-  console.log('TOGETHER_API_KEY:', TOGETHER_KEY ? '✓ Present' : '✗ Missing');
-
-  if (!MINDSDB_KEY) {
-    throw new Error('MINDSDB_RC_KEY is not defined in environment variables');
-  }
-
-  if (!TOGETHER_KEY) {
-    throw new Error('TOGETHER_API_KEY is not defined in environment variables');
-  }
-
   try {
+    // Debug: Print environment status
+    const envPath = path.join(process.cwd(), '.env.local');
+    console.log('Reading .env.local from:', envPath);
+    const envContent = await fs.readFile(envPath, 'utf8');
+    console.log('Raw .env.local content:', envContent);
+
+    const MINDSDB_API_ENDPOINT = 'https://cloud.mindsdb.com/api/sql/query';
+    const MINDSDB_KEY = process.env.MINDSDB_RC_KEY;
+    const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
+
+    console.log('\nEnvironment variables loaded:');
+    console.log('MINDSDB_RC_KEY:', MINDSDB_KEY ? '✓ Present' : '✗ Missing');
+    console.log('TOGETHER_API_KEY:', TOGETHER_KEY ? '✓ Present' : '✗ Missing');
+
+    if (!MINDSDB_KEY) {
+      throw new Error('MINDSDB_RC_KEY is not defined in environment variables');
+    }
+
+    if (!TOGETHER_KEY) {
+      throw new Error('TOGETHER_API_KEY is not defined in environment variables');
+    }
+
     const pdfDir = path.join(process.cwd(), 'public', 'pdfs');
     console.log('Looking for PDFs in:', pdfDir);
     
     let files: string[];
     try {
-      files = await readdir(pdfDir);
+      files = await fs.readdir(pdfDir);
     } catch (error) {
       console.error('Error accessing pdfs directory:', error);
       throw new Error('public/pdfs directory not found. Please ensure the directory structure is correct.');
@@ -71,22 +119,33 @@ async function trainModel(): Promise<void> {
 
     // Set up database
     console.log('Setting up database...');
-    const setupQuery = `
-      CREATE DATABASE IF NOT EXISTS files_database
-      WITH ENGINE = 'mysql';
-    `;
+    try {
+      const setupQuery = `
+        CREATE PROJECT IF NOT EXISTS forms_project;
+        CREATE DATABASE IF NOT EXISTS forms_project.files_database;
+        CREATE TABLE IF NOT EXISTS forms_project.files_database.pdf_files (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          filename VARCHAR(255),
+          text_content TEXT,
+          file_path VARCHAR(512),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `;
 
-    const setupResponse = await fetch(MINDSDB_API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${MINDSDB_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: setupQuery }),
-    });
+      const setupResponse = await fetchWithRetry(MINDSDB_API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${MINDSDB_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: setupQuery }),
+      });
 
-    if (!setupResponse.ok) {
-      throw new Error(`Failed to setup database: ${setupResponse.statusText}`);
+      const setupResult = await setupResponse.json();
+      console.log('Database setup response:', setupResult);
+    } catch (error) {
+      console.error('Database setup error:', error);
+      throw error;
     }
 
     // Process PDFs
@@ -94,10 +153,10 @@ async function trainModel(): Promise<void> {
       try {
         console.log(`Processing ${file}...`);
         const filePath = path.join(pdfDir, file);
-        const dataBuffer = await readFile(filePath);
+        const dataBuffer = await fs.readFile(filePath);
 
         // Parse PDF
-        const pdfData = await pdfParse(dataBuffer, parseOptions) as PDFData;
+        const pdfData = await pdfParse(dataBuffer, PDF_PARSE_OPTIONS) as PDFData;
         
         const cleanText = pdfData.text
           .replace(/'/g, "''")
@@ -105,20 +164,18 @@ async function trainModel(): Promise<void> {
           .trim();
 
         const insertQuery = `
-          INSERT INTO files_database.pdf_files (
+          INSERT INTO forms_project.files_database.pdf_files (
             filename,
             text_content,
-            file_path,
-            created_at
+            file_path
           ) VALUES (
             '${file}',
             '${cleanText}',
-            '${filePath.replace(/'/g, "''")}',
-            CURRENT_TIMESTAMP
+            '${filePath.replace(/'/g, "''")}'
           );
         `;
 
-        const response = await fetch(MINDSDB_API_ENDPOINT, {
+        const response = await fetchWithRetry(MINDSDB_API_ENDPOINT, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${MINDSDB_KEY}`,
@@ -126,10 +183,6 @@ async function trainModel(): Promise<void> {
           },
           body: JSON.stringify({ query: insertQuery }),
         });
-
-        if (!response.ok) {
-          throw new Error(`MindsDB API error for file ${file}: ${response.statusText}`);
-        }
 
         console.log(`Successfully processed ${file}`);
       } catch (error) {
@@ -145,21 +198,10 @@ async function trainModel(): Promise<void> {
       PREDICT due_date
       USING ENGINE = 'together',
       MODEL_NAME = 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo',
-      API_KEY = '${TOGETHER_KEY}',
-      PROMPT_TEMPLATE = '
-        [INST]
-        You are an expert at analyzing forms and documents. Please identify any due dates, deadlines, or filing periods mentioned here:
-        {text_content}
-        
-        For each deadline found, provide:
-        1. Type of deadline (filing, payment, submission, etc.)
-        2. The exact date or time period
-        3. Any specific conditions
-        [/INST]
-      ';
+      API_KEY = '${TOGETHER_KEY}';
     `;
 
-    const createModelResponse = await fetch(MINDSDB_API_ENDPOINT, {
+    const createModelResponse = await fetchWithRetry(MINDSDB_API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${MINDSDB_KEY}`,
@@ -168,19 +210,15 @@ async function trainModel(): Promise<void> {
       body: JSON.stringify({ query: createModelQuery }),
     });
 
-    if (!createModelResponse.ok) {
-      throw new Error(`Failed to create model: ${createModelResponse.statusText}`);
-    }
-
     // Train model
     console.log('Training model...');
     const trainQuery = `
       RETRAIN forms_project.forms_due_dates
-      FROM files_database.pdf_files
+      FROM forms_project.files_database.pdf_files
       USING text_content;
     `;
 
-    const trainResponse = await fetch(MINDSDB_API_ENDPOINT, {
+    const trainResponse = await fetchWithRetry(MINDSDB_API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${MINDSDB_KEY}`,
@@ -189,13 +227,13 @@ async function trainModel(): Promise<void> {
       body: JSON.stringify({ query: trainQuery }),
     });
 
-    if (!trainResponse.ok) {
-      throw new Error(`Failed to start model training: ${trainResponse.statusText}`);
-    }
-
     console.log('Model training started successfully!');
   } catch (error) {
-    console.error('Error:', error instanceof Error ? error.message : error);
+    if (error instanceof Error) {
+      console.error('Error:', error.message);
+    } else {
+      console.error('Unknown error:', error);
+    }
     process.exit(1);
   }
 }
