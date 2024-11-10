@@ -56,7 +56,6 @@ export default async function Forms() {
             </div>
           </div>
         </div>
-        <Button>Create form</Button>
       </div>
       <ul className="mt-10">
         {forms.map((form, index) => (
