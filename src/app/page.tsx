@@ -8,20 +8,29 @@ import { Stat } from '@/components/stat';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 
 interface FormData {
+  id: number;
   name: string;
   category: string;
+  governingBody: string;
+  description: string;
+  resourceUrl: string;
+  jurisdiction: string;
   frequency: string;
   status: string;
-  due_date: string;
+  due_date?: string;
+  featured: boolean;
+  sections?: Record<string, any>;
 }
 
-const calculateProgress = (dueDate: string): number => {
+const calculateProgress = (dueDate?: string): number => {
+  if (!dueDate) return 0;
+  
   const now = new Date();
   const due = new Date(dueDate);
   const timeLeft = due.getTime() - now.getTime();
   const daysLeft = timeLeft / (1000 * 3600 * 24);
   
-  if (daysLeft < 0) return 10;  
+  if (daysLeft < 0) return 100;  // Past due
   if (daysLeft <= 30) {
     return Math.round(100 - (daysLeft / 30 * 100));
   }
@@ -40,13 +49,11 @@ export default function Home() {
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        console.log('Fetching forms data...');
         const response = await fetch('/api/forms');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Received forms data:', data);
         setForms(data);
       } catch (err) {
         console.error('Error fetching forms:', err);
@@ -67,16 +74,28 @@ export default function Home() {
     setSortConfig({ key, direction });
   };
 
-  const formsList = Object.entries(forms).map(([id, form]) => ({
-    id,
+  const formsList = Object.entries(forms).map(([key, form]) => ({
+    key,
     ...form
   }));
 
   const sortedForms = [...formsList].sort((a, b) => {
     if (sortConfig !== null) {
       const { key, direction } = sortConfig;
-      if (a[key] < b[key]) return direction === 'ascending' ? -1 : 1;
-      if (a[key] > b[key]) return direction === 'ascending' ? 1 : -1;
+      // Handle potential undefined due_dates
+      if (key === 'due_date') {
+        const aValue = a[key] || '';
+        const bValue = b[key] || '';
+        return direction === 'ascending' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+      // Handle regular sorting
+      const aValue = String(a[key]).toLowerCase();
+      const bValue = String(b[key]).toLowerCase();
+      return direction === 'ascending' 
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
     }
     return 0;
   });
@@ -87,9 +106,10 @@ export default function Home() {
       : formsList;
     
     const total = filteredForms.length;
-    const completed = filteredForms.filter(form => 
-      calculateProgress(form.due_date) >= 90
-    ).length;
+    const completed = filteredForms.filter(form => {
+      if (!form.due_date) return false;
+      return calculateProgress(form.due_date) >= 90;
+    }).length;
     
     return { completed, total };
   };
@@ -117,7 +137,7 @@ export default function Home() {
 
   return (
     <>
-      <Heading>Good afternoon, Moe</Heading>
+      <Heading>Forms Dashboard</Heading>
 
       <div className="mt-8 flex items-end justify-between">
         <Subheading>Overview</Subheading>
@@ -177,7 +197,7 @@ export default function Home() {
           {sortedForms.map((form) => {
             const progress = calculateProgress(form.due_date);
             return (
-              <TableRow key={form.id} href={`/forms/${form.id}`}>
+              <TableRow key={form.key} href={`/forms/${form.key}`}>
                 <TableCell className="font-medium">{form.name}</TableCell>
                 <TableCell className="text-zinc-500">
                   {form.category}
@@ -209,7 +229,7 @@ export default function Home() {
                   </div>
                 </TableCell>
                 <TableCell className="text-zinc-500">
-                  {new Date(form.due_date).toLocaleDateString()}
+                  {form.due_date ? new Date(form.due_date).toLocaleDateString() : 'No deadline'}
                 </TableCell>
               </TableRow>
             );

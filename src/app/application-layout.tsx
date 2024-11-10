@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Avatar } from '@/components/avatar'
+import { Badge } from '@/components/badge'
 import {
   Dropdown,
   DropdownButton,
@@ -41,10 +42,11 @@ import {
 } from '@heroicons/react/20/solid'
 import { usePathname } from 'next/navigation'
 
-interface FeaturedForm {
+interface FormData {
   id: string
   name: string
   featured: boolean
+  due_date?: string
 }
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
@@ -78,30 +80,49 @@ export function ApplicationLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const [featuredForms, setFeaturedForms] = useState<FeaturedForm[]>([])
+  const [featuredForms, setFeaturedForms] = useState<FormData[]>([])
+  const [dueSoonForms, setDueSoonForms] = useState<FormData[]>([])
 
   useEffect(() => {
-    const fetchFeaturedForms = async () => {
+    const fetchForms = async () => {
       try {
         const response = await fetch('/api/forms')
         const data = await response.json()
         
-        // Convert the object to an array and filter featured forms
-        const forms = Object.entries(data)
-          .map(([id, form]: [string, any]) => ({
-            id,
-            name: form.name,
-            featured: form.featured
-          }))
-          .filter(form => form.featured)
+        // Convert the object to an array of forms
+        const formsArray = Object.entries(data).map(([id, form]: [string, any]) => ({
+          id,
+          name: form.name,
+          featured: form.featured,
+          due_date: form.due_date
+        }))
 
-        setFeaturedForms(forms)
+        // Filter featured forms
+        const featured = formsArray.filter(form => form.featured)
+        setFeaturedForms(featured)
+
+        // Filter forms due in next 14 days
+        const now = new Date()
+        const fourteenDaysFromNow = new Date(now.getTime() + (14 * 24 * 60 * 60 * 1000))
+        
+        const dueSoon = formsArray
+          .filter(form => {
+            if (!form.due_date) return false
+            const dueDate = new Date(form.due_date)
+            return dueDate >= now && dueDate <= fourteenDaysFromNow
+          })
+          .sort((a, b) => {
+            if (!a.due_date || !b.due_date) return 0
+            return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+          })
+
+        setDueSoonForms(dueSoon)
       } catch (error) {
-        console.error('Error fetching featured forms:', error)
+        console.error('Error fetching forms:', error)
       }
     }
 
-    fetchFeaturedForms()
+    fetchForms()
   }, [])
 
   return (
@@ -168,12 +189,36 @@ export function ApplicationLayout({
             </SidebarSection>
 
             <SidebarSection className="max-lg:hidden">
-              <SidebarHeading>Recent Forms</SidebarHeading>
+              <SidebarHeading>Featured Forms</SidebarHeading>
               {featuredForms.map((form) => (
                 <SidebarItem key={form.id} href={`/forms/${form.id}`}>
                   {form.name}
                 </SidebarItem>
               ))}
+            </SidebarSection>
+
+            <SidebarSection className="max-lg:hidden">
+              <SidebarHeading>Due Soon</SidebarHeading>
+              {dueSoonForms.map((form) => (
+                <SidebarItem 
+                  key={form.id} 
+                  href={`/forms/${form.id}`}
+                >
+                  <div className="flex flex-col w-full gap-1">
+                    <span className="line-clamp-2">{form.name}</span>
+                    {form.due_date && (
+                      <Badge color="red" className="w-fit text-xs">
+                        Due {new Date(form.due_date).toLocaleDateString()}
+                      </Badge>
+                    )}
+                  </div>
+                </SidebarItem>
+              ))}
+              {dueSoonForms.length === 0 && (
+                <div className="px-3 py-2 text-sm text-zinc-500">
+                  No forms due soon
+                </div>
+              )}
             </SidebarSection>
 
             <SidebarSpacer />

@@ -1,6 +1,4 @@
-// app/forms/[id]/page.tsx
 import { Badge } from '@/components/badge'
-import { Button } from '@/components/button'
 import { Heading, Subheading } from '@/components/heading'
 import { Link } from '@/components/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
@@ -8,8 +6,8 @@ import { ChevronLeftIcon } from '@heroicons/react/16/solid'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import formsData from '@/app/data/forms.json'
+import ActionButtons from './action-buttons'
 
-// Define types for the form data structure
 interface FormField {
   description: string;
   options?: string[];
@@ -26,19 +24,20 @@ interface Form {
   status: string;
   category: string;
   governingBody: string;
-  due_date?: string;      // Add due_date as an optional string
-  frequency?: string;      // Add frequency as an optional string
-  featured?: boolean;      // Add featured as an optional boolean
+  due_date?: string;
+  frequency?: string;
+  featured?: boolean;
+  generatePDF: boolean;
+  submitOnline: boolean;
   sections?: {
     [key: string]: FormSection;
   };
 }
 
-// Explicitly type the formsData import with flexible indexing
 const formsDataTyped = formsData as unknown as { [key: string]: Form };
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const form = formsDataTyped[params.id];  // Use typed `formsDataTyped` here
+  const form = formsDataTyped[params.id];
 
   if (!form) {
     return {
@@ -52,7 +51,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default function FormPage({ params }: { params: { id: string } }) {
-  const form = formsDataTyped[params.id];  // Use typed `formsDataTyped` here
+  const form = formsDataTyped[params.id];
 
   if (!form) {
     notFound();
@@ -83,10 +82,11 @@ export default function FormPage({ params }: { params: { id: string } }) {
             Due: {form.due_date ? new Date(form.due_date).toLocaleDateString() : 'N/A'}
           </div>
         </div>
-        <div className="flex gap-4">
-          <Button outline>Edit</Button>
-          <Button>Submit</Button>
-        </div>
+        <ActionButtons 
+          formName={form.name}
+          generatePDF={form.generatePDF}
+          submitOnline={form.submitOnline}
+        />
       </div>
       
       {form.sections && (
@@ -100,7 +100,6 @@ export default function FormPage({ params }: { params: { id: string } }) {
                 <TableBody>
                   {Object.entries(section).map(([fieldKey, field]: [string, FormField]) => {
                     if (field.options) {
-                      // Render select input for fields with options
                       return (
                         <TableRow key={fieldKey}>
                           <TableCell className="font-medium">{field.description}</TableCell>
@@ -123,7 +122,6 @@ export default function FormPage({ params }: { params: { id: string } }) {
                     }
 
                     if (field.fields) {
-                      // Render multiple inputs for field groups
                       return field.fields.map((subField: string) => (
                         <TableRow key={`${fieldKey}-${subField}`}>
                           <TableCell className="font-medium">{subField}</TableCell>
@@ -140,7 +138,6 @@ export default function FormPage({ params }: { params: { id: string } }) {
                       ))
                     }
 
-                    // Default text input
                     return (
                       <TableRow key={fieldKey}>
                         <TableCell className="font-medium">{field.description}</TableCell>

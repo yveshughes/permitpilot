@@ -4,13 +4,13 @@ import { Text } from '@/components/text'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'SS-4 Form Information',
+  title: 'Consolidated Business Information',
 }
 
 export default function SS4FormInfo() {
   return (
     <div className="mx-auto max-w-4xl">
-      <Heading>Business Information</Heading>
+      <Heading>My Business</Heading>
       <Divider className="my-10 mt-6" />
 
       {/* Business Identification */}

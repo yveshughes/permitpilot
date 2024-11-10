@@ -1,11 +1,18 @@
 {
   "ss-4": {
+    "id": 1002,
     "name": "Employer Identification Number (EIN)",
+    "governingBody": "Internal Revenue Service (IRS)",
+    "description": "Federal Tax ID for your business",
+    "resourceUrl": "https://www.irs.gov/ein",
+    "jurisdiction": "federal",
     "category": "Tax",
     "frequency": "Once",
     "status": "Required",
-    "due_date": "2024-11-07",
+    "due_date": "2024-11-24",
     "featured": true,
+    "generatePDF": true,
+    "submitOnline": true,
     "sections": {
       "business_identification": {
         "legal_name": {
@@ -71,12 +78,19 @@
     }
   },
   "fictitious-business-name": {
+    "id": 1004,
     "name": "Fictitious Business Name Statement",
+    "governingBody": "City and County of San Francisco",
+    "description": "Required when doing business under a name different from the owner's",
+    "resourceUrl": "https://sf.gov/fictitious-business-name",
+    "jurisdiction": "local",
     "category": "Registration",
     "frequency": "Once",
     "status": "Conditional",
-    "due_date": "2024-11-07",
+    "due_date": "2024-12-10",
     "featured": true,
+    "generatePDF": true,
+    "submitOnline": true,
     "sections": {
       "business_identification": {
         "trade_name": {
@@ -130,107 +144,196 @@
     }
   },
   "business-registration": {
+    "id": 1001,
     "name": "Business Registration Certificate",
+    "governingBody": "City and County of San Francisco",
+    "description": "Register your business with the City and County of San Francisco",
+    "resourceUrl": "https://sf.gov/business-registration",
+    "jurisdiction": "local",
     "category": "Registration",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-10",
-    "featured": false
+    "due_date": "2024-11-17",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "seller-permit": {
+    "id": 1003,
     "name": "Seller's Permit",
+    "governingBody": "California Department of Tax and Fee Administration",
+    "description": "Required for selling or leasing tangible personal property",
+    "resourceUrl": "https://www.cdtfa.ca.gov/services/#Register-Renewals",
+    "jurisdiction": "state",
     "category": "Permits",
     "frequency": "Once",
     "status": "Required",
-    "due_date": "2024-11-06",
-    "featured": false
+    "due_date": "2024-11-24",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "health-permit": {
+    "id": 1005,
     "name": "Health Permit",
+    "governingBody": "San Francisco Department of Public Health",
+    "description": "Required for food-related businesses",
+    "resourceUrl": "https://sf.gov/health-permits",
+    "jurisdiction": "local",
     "category": "Health",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-03",
-    "featured": false
+    "due_date": "2024-11-10",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "food-safety-certification": {
+    "id": 1006,
     "name": "Food Safety Manager Certification",
+    "governingBody": "San Francisco Department of Public Health",
+    "description": "Required for food service establishments",
+    "resourceUrl": "https://sf.gov/food-safety-certification",
+    "jurisdiction": "local",
     "category": "Health",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-03",
-    "featured": false
+    "due_date": "2024-11-10",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "building-permit": {
+    "id": 1007,
     "name": "Building Permit",
+    "governingBody": "San Francisco Department of Building Inspection",
+    "description": "Required for construction or renovation",
+    "resourceUrl": "https://sf.gov/building-permits",
+    "jurisdiction": "local",
     "category": "Permits",
     "frequency": "Once",
     "status": "Conditional",
-    "due_date": "2024-11-09",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "workers-compensation": {
+    "id": 1008,
     "name": "Workers' Compensation Insurance",
+    "governingBody": "California Division of Workers' Compensation",
+    "description": "Required for businesses with employees",
+    "resourceUrl": "https://www.dir.ca.gov/dwc/",
+    "jurisdiction": "state",
     "category": "Insurance",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-02",
-    "featured": false
+    "due_date": "2024-11-10",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "fire-department-permit": {
+    "id": 1009,
     "name": "Fire Department Permit",
+    "governingBody": "San Francisco Fire Department",
+    "description": "Required for businesses with specific fire safety needs",
+    "resourceUrl": "https://sf.gov/fire-permits",
+    "jurisdiction": "local",
     "category": "Safety",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-06",
-    "featured": false
+    "due_date": "2024-11-10",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "liquor-license": {
+    "id": 1010,
     "name": "Liquor License",
+    "governingBody": "California Department of Alcoholic Beverage Control",
+    "description": "Required for selling alcohol",
+    "resourceUrl": "https://www.abc.ca.gov/licensing/",
+    "jurisdiction": "state",
     "category": "Permits",
     "frequency": "Miscellaneous",
     "status": "Conditional",
-    "due_date": "2024-11-09",
-    "featured": false
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "property-taxes": {
+    "id": 1011,
     "name": "Property Taxes",
+    "governingBody": "San Francisco Office of the Assessor-Recorder",
+    "description": "Required for business property owners",
+    "resourceUrl": "https://sf.gov/property-tax",
+    "jurisdiction": "local",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-08",
-    "featured": false
+    "due_date": "2025-11-01",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "federal-income-tax": {
+    "id": 1012,
     "name": "Federal Income Tax & FUTA",
+    "governingBody": "Internal Revenue Service (IRS)",
+    "description": "Required federal tax filings",
+    "resourceUrl": "https://www.irs.gov/businesses",
+    "jurisdiction": "federal",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-05",
-    "featured": false
+    "due_date": "2025-04-15",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "california-income-tax": {
+    "id": 1013,
     "name": "California Income Tax & UI Tax",
+    "governingBody": "California Franchise Tax Board",
+    "description": "Required state tax filings",
+    "resourceUrl": "https://www.ftb.ca.gov/businesses/",
+    "jurisdiction": "state",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-05",
-    "featured": false
+    "due_date": "2025-04-15",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "gross-receipts-tax": {
+    "id": 1014,
     "name": "Gross Receipts Tax",
+    "governingBody": "City and County of San Francisco",
+    "description": "Local business tax based on gross receipts",
+    "resourceUrl": "https://sf.gov/gross-receipts-tax",
+    "jurisdiction": "local",
     "category": "Tax",
     "frequency": "Annual",
     "status": "Required",
-    "due_date": "2024-11-06",
-    "featured": false
+    "due_date": "2025-02-28",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   },
   "health-care-security": {
+    "id": 1015,
     "name": "Health Care Security Ordinance",
+    "governingBody": "San Francisco Department of Public Health",
+    "description": "Required health care spending for covered employers",
+    "resourceUrl": "https://sf.gov/hcso",
+    "jurisdiction": "local",
     "category": "Health",
     "frequency": "Annual",
     "status": "Conditional",
-    "due_date": "2024-11-05",
-    "featured": false
+    "due_date": "2025-04-30",
+    "featured": false,
+    "generatePDF": false,
+    "submitOnline": true
   }
 }
